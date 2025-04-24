@@ -2,6 +2,9 @@
 __pycache__/
 *.py[cod]
 *$py.class
+.DS_Store
+
+edu_traject/settings.py
 
 # C extensions
 *.so
