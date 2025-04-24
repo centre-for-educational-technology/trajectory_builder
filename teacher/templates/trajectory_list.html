@@ -1,0 +1,46 @@
+{% extends 'base_form.html' %}
+
+{% block content %}
+<style>
+.trajectory{
+    border-radius: 15px;
+    background-color: white;
+    border:1px;
+}
+</style>
+<div class="min-vh-100 d-flex flex-column">
+    <div class="container">
+        <!-- Top white bar -->
+        <div class="py-3 px-0">
+            <h5 class="m-0">Trajectories</h5>
+        </div>
+    </div>
+    <div class="bg-light border-top shadow-sm min-vh-100 d-flex flex-column">
+        <!-- Light grey background section -->
+        <div class="container  py-4">
+            <div class="d-flex justify-content-between align-items-center mb-3">
+                <h6 class="mb-0">Your learning trajectory</h6>
+                <a href="{% url 'learning_path_create' %}" class="btn btn-success py-1 btn-small">Add new</a>
+            </div>
+            <hr>
+
+            <ul class="list-group">
+                {% for path in learning_paths %}
+                <li class="trajectory d-flex justify-content-between align-items-center p-4 shadow-sm">
+                    <div class=" rounded-box">
+                        <h6 class="mb-1">{{ path.title | upper }}</h6>
+                        <small class="text-muted">{{ path.get_school_level_display }} - {{ path.get_subject_display }}</small> <br/>
+                        <small class="text-muted">{{ path.description }}</small> 
+                    </div>
+                    <div>
+                        <a href="{% url 'learning_path_update' path.pk %}" class="btn btn-sm btn-outline-primary">Edit</a>
+                    </div>
+                </li>
+                {% empty %}
+                <li class="list-group-item">No learning paths found.</li>
+                {% endfor %}
+            </ul>
+        </div>
+    </div>
+</div>
+{% endblock %}
