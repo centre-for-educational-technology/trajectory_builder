@@ -1,9 +1,10 @@
 from rest_framework import viewsets
 from rest_framework.permissions import IsAuthenticated
-from .models import Episode, LearningTask
-from .serializers import EpisodeSerializer, LearningTaskSerializer
+from .models import Episode, LearningTask, Resource
+from .serializers import EpisodeSerializer, LearningTaskSerializer, ResourceSerializer
 from rest_framework.response import Response
 from rest_framework import status
+
 
 class EpisodeViewSet(viewsets.ModelViewSet):
     queryset = Episode.objects.all()
@@ -46,4 +47,20 @@ class LearningTaskViewSet(viewsets.ModelViewSet):
 
     def perform_create(self, serializer):
         episode_id = self.request.data.get('episode')
+        episode = Episode.objects.filter(id=int(episode_id))
+        print('Obtained:',episode_id)
         serializer.save(episode_id=episode_id)
+
+class ResourceViewSet(viewsets.ModelViewSet):
+    queryset = Resource.objects.all()
+    serializer_class = ResourceSerializer
+    permission_classes = [IsAuthenticated]
+
+    def get_queryset(self):
+        return self.queryset.filter(learning_task__episode__learning_path__owner=self.request.user)
+
+    def perform_create(self, serializer):
+        print('===> Called api endpoint')
+        task_id = self.request.data.get('learning_task')
+        print('Task:',task_id)
+        serializer.save(learning_task_id=task_id)

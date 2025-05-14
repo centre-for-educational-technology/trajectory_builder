@@ -15,7 +15,7 @@ from django.urls import reverse
 from django.shortcuts import redirect
 from django.forms import modelformset_factory
 from django.views.generic.edit import FormView
-from .forms import LearningPathForm, EpisodeFormSet, ResourceFormSet, ResourceForm, EpisodeForm, LearningTaskForm
+from .forms import LearningPathForm, ResourceForm, EpisodeForm, LearningTaskForm
 from .models import LearningPath, Episode, LearningTask, Resource
 
 

@@ -121,7 +121,7 @@
                                     <h6 class="mb-2"> Learning Activities </h6>
                                     <div class="tasks-container mb-3">
                                         {% for task in episode.learning_tasks.all %}
-                                        <div class="task bg-light p-3 rounded-box-sm p-2 ">
+                                        <div class="task bg-light p-3 rounded-box-sm p-2 mb-3 ">
                                             <div class="task-header d-flex justify-content-between align-items-start">
                                                 <div>
                                                     <p class="activity-title p-0 m-0">Activity: {{task.title}}</p>
@@ -132,13 +132,22 @@
                                                     <a href="" class="font-weight-bold text-danger text-decoration-none activity-title">Remove </a>
                                                 </div>
                                             </div>
-                                            
-                                            <a href="" data-bs-toggle="modal" data-bs-target="#addResourceModal" class="text-bold-light text-blue text-decoration-none add-resource-link">+ Add Resource</a>
+                                            <div class="task-body mb-0" style="font-size:.9rem;">
+                                                <p class="m-0 p-0 small" style="font-weight: 500;">Resources:</p>
+                                                <div class="resource-container small m-0">
+                                                    <ul>
+                                                        {% for resource in task.resources.all %}
+                                                        <li>{{resource.title}}</li>
+                                                        {% endfor %}
+                                                    </ul>
+                                                </div>
+                                            </div>
+                                            <div class="mt-0"><a href=""  data-tid="{{task.id}}" data-bs-toggle="modal" data-bs-target="#addResourceModal" class="text-bold-light text-blue text-decoration-none add-resource-link mt-0">+ Add Resource</a></div>
                                         </div>
                                         {% endfor %}
                                     </div>
    
-                                    <button class="btn text-blue" style="background-color: aliceblue; font-size: .9rem; font-weight: 600;" data-bs-toggle="modal" data-bs-target="#addTaskModal">+ Add Learning Activity</button>
+                                    <button class="btn text-blue" style="background-color: aliceblue; font-size: .9rem; font-weight: 600;" data-eid="{{episode.id}}" data-bs-toggle="modal" data-bs-target="#addTaskModal">+ Add Learning Activity</button>
                                 </div>
                             </div>
                             {% endfor %}
@@ -149,7 +158,8 @@
             </div>   
         </div>
         <div class="my-2"></div>
-        <!-- Modal -->
+
+        <!-- Episode Modal -->
         <div class="modal fade" id="addEpisodeModal" tabindex="-1" aria-labelledby="addEpisodeModalLabel" aria-hidden="true">
             <div class="modal-dialog">
             <div class="modal-content">
@@ -176,6 +186,7 @@
             </div>
         </div>
 
+        <!-- Task Modal -->
         <div class="modal fade" id="addTaskModal" tabindex="-1" aria-labelledby="addTaskModalLabel" aria-hidden="true">
             <div class="modal-dialog">
             <div class="modal-content">
@@ -188,6 +199,7 @@
                 <div class="modal-body">
                     {% csrf_token %}
                     <div class="mb-3">
+                    <input type="hidden" name="episode" id="modal-episode-id" value="">
                     {{learning_task_form | crispy}}
                     </div>
                 </div>
@@ -201,6 +213,7 @@
             </div>
         </div>
 
+        <!-- Resource Modal -->
         <div class="modal fade" id="addResourceModal" tabindex="-1" aria-labelledby="addResourceModalLabel" aria-hidden="true">
             <div class="modal-dialog">
             <div class="modal-content">
@@ -213,7 +226,8 @@
                 <div class="modal-body">
                     {% csrf_token %}
                     <div class="mb-3">
-                    {{response_form | crispy}}
+                        <input type="hidden" name="learning_task" id="modal-task-id" value="">
+                        {{resource_form | crispy}}
                     </div>
                 </div>
         
@@ -255,6 +269,22 @@ document.addEventListener('DOMContentLoaded', function () {
       });
     });
 
+
+    // Accessing associated episode id in modal
+    $('#addTaskModal').on('show.bs.modal', function (event) {
+        var button = $(event.relatedTarget) ;
+        var episodeId = button.attr('data-eid');
+        $(this).find('#modal-episode-id').val(episodeId);
+    })
+
+    // Accessing associated episode id in modal
+    $('#addResourceModal').on('show.bs.modal', function (event) {
+        var button = $(event.relatedTarget) ;
+        var episodeId = button.attr('data-tid');
+        $(this).find('#modal-task-id').val(episodeId);
+    })
+
+
     // Attaching event for adding episode
     const episodeForm = document.getElementById('episodeForm');
     episodeForm.addEventListener('submit', function (e) {
@@ -288,6 +318,101 @@ document.addEventListener('DOMContentLoaded', function () {
             } else {
                 console.error('Error response:', xhr.responseText);
                 alert('Failed to create episode. Check input or permissions.');
+            }
+        };
+
+        xhr.onerror = function () {
+            console.error('Request failed');
+            alert('An error occurred during the request.');
+        };
+
+        xhr.send(formData);
+    });
+
+    // Attaching event for task form
+    const taskForm = document.getElementById('taskForm');
+    taskForm.addEventListener('submit', function (e) {
+        e.preventDefault();
+
+        const xhr = new XMLHttpRequest();
+        const url = '/trajectory/learningtasks/';  // your Django API endpoint
+
+        const formData = new FormData(taskForm);
+
+        console.log(formData)
+
+        const csrfToken = document.querySelector('[name=csrfmiddlewaretoken]').value;
+
+        xhr.open('POST', url, true);
+        xhr.setRequestHeader('X-CSRFToken', csrfToken);
+        // Do NOT set 'Content-Type' header manually when using FormData
+
+        xhr.onload = function () {
+            if (xhr.status === 201 || xhr.status === 200) {
+                const responseData = JSON.parse(xhr.responseText);
+                console.log('Learning task created successfully:', responseData);
+
+                // Refresh page
+                refreshOnModalClose('addTaskModal');
+
+                // Close the modal
+                const modal = bootstrap.Modal.getInstance(document.getElementById('addTaskModal'));
+               
+                // Optionally reset the form
+                episodeForm.reset();
+
+                modal.hide();
+            } else {
+                console.error('Error response:', xhr.responseText);
+                alert('Failed to create task. Check input or permissions.');
+            }
+        };
+
+        xhr.onerror = function () {
+            console.error('Request failed');
+            alert('An error occurred during the request.');
+        };
+
+        xhr.send(formData);
+    });
+
+
+    // Attaching event for resource form
+    const resourceForm = document.getElementById('resourceForm');
+    resourceForm.addEventListener('submit', function (e) {
+        e.preventDefault();
+
+        const xhr = new XMLHttpRequest();
+        const url = '/trajectory/resources/';  // your Django API endpoint
+
+        console.log('Resource handler called');
+
+        const formData = new FormData(resourceForm);
+
+        const csrfToken = document.querySelector('[name=csrfmiddlewaretoken]').value;
+
+        xhr.open('POST', url, true);
+        xhr.setRequestHeader('X-CSRFToken', csrfToken);
+        // Do NOT set 'Content-Type' header manually when using FormData
+
+        xhr.onload = function () {
+            if (xhr.status === 201 || xhr.status === 200) {
+                const responseData = JSON.parse(xhr.responseText);
+                console.log('Resource created successfully:', responseData);
+
+                // Refresh page
+                //refreshOnModalClose('addResourceModal');
+
+                // Close the modal
+                const modal = bootstrap.Modal.getInstance(document.getElementById('addResourceModal'));
+               
+                // Optionally reset the form
+                //resourceForm.reset();
+
+                //modal.hide();
+            } else {
+                console.error('Error response:', xhr.responseText);
+                alert('Failed to create task. Check input or permissions.');
             }
         };
 

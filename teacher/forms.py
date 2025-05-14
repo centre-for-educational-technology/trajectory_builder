@@ -1,5 +1,4 @@
 from django import forms
-from django.forms import modelformset_factory
 from .models import LearningPath, Episode, LearningTask, Resource
 
 class LearningPathForm(forms.ModelForm):
@@ -114,9 +113,11 @@ class LearningTaskForm(forms.ModelForm):
 class ResourceForm(forms.ModelForm):
     class Meta:
         model = Resource
-        fields = ['url','title']
+        fields = ['title','url']
+        widgets = {
+            'title': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Enter episode title'}),
+            'url': forms.URLInput(attrs={'class': 'form-control', 'placeholder': 'Enter episode title'}),
+            
+        }
 
-# Formset
-EpisodeFormSet = modelformset_factory(Episode, form=EpisodeForm, can_order=True, can_delete=True,extra=1)  # 'extra' specifies how many empty forms to display
-LearningTaskFormSet = modelformset_factory(LearningTask, form=LearningTaskForm, can_order=True, can_delete=True, extra=1)
-ResourceFormSet = modelformset_factory(Resource, form=ResourceForm, can_order=True, can_delete=True, extra=1)
+

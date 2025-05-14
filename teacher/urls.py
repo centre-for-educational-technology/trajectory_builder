@@ -7,7 +7,8 @@ from .views import (
 )
 from .api import (
         EpisodeViewSet, 
-        LearningTaskViewSet
+        LearningTaskViewSet,
+        ResourceViewSet
 )
 
 from .views import (
@@ -20,6 +21,7 @@ from .views import (
 router = DefaultRouter()
 router.register(r'episodes', EpisodeViewSet)
 router.register(r'learningtasks', LearningTaskViewSet)
+router.register(r'resources', ResourceViewSet)
 
 urlpatterns = [
     # Web Views
