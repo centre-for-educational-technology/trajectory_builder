@@ -30,21 +30,11 @@
     <!-- A plugin for password show/hide 
     <script src="https://unpkg.com/bootstrap-show-password@1.2.1/dist/bootstrap-show-password.min.js"></script> -->
 
-    <script src="{% static 'axios.min.js'%}"></script>
+    <!-- Alpine library  -->
+    <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
 
-    <!-- Voice activity detection library  -->
-    <script src="{% static 'vad.js'%}"></script>
 
-    <!--  Time synchronization at milliseconds level -->
-    <script src="{% static 'ServerDate.js'%}"></script> 
-
-    <!-- Audio/video recording library -->
-    <script src="{% static 'RecordRTC.js'%}"></script>
-
-    <!-- Chart library  -->
-    <script src="{% static 'chart.min.js'%}"></script>
-    <script src="{% static 'chartjs-plugin-colorschemes.js' %}"></script>
-
+   
     <title>{% block title %} {% endblock %} </title>
 
     <!-- Including form media if any  -->

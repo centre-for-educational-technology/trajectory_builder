@@ -2,7 +2,7 @@ from django.db import models
 
 # Create your models here.
 
-
+from django.contrib import admin
 from django.db import models
 from django.contrib.auth.models import User
 
@@ -98,9 +98,15 @@ class Episode(models.Model):
     description = models.TextField()
     knowbits = models.CharField(max_length=200, choices=KNOWBIT_CHOICES, blank=True)
     skillbits = models.CharField(max_length=200, choices=SKILLBIT_CHOICES, blank=True)
-    sequence_number = models.IntegerField()
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
+    sequence_number = models.IntegerField(blank=True, null=True)
+
+    def save(self, *args, **kwargs):
+        if self.sequence_number is None:
+            last_seq = Episode.objects.filter(learning_path=self.learning_path).aggregate(models.Max('sequence_number'))['sequence_number__max']
+            self.sequence_number = (last_seq or 0) + 1
+        super().save(*args, **kwargs)
 
     class Meta:
         ordering = ['sequence_number']
@@ -133,3 +139,17 @@ class LearningTask(models.Model):
 
     def __str__(self):
         return self.title
+
+class Resource(models.Model):
+    learning_task = models.ForeignKey(LearningTask, on_delete=models.CASCADE, related_name='resources')
+    url = models.URLField(max_length=500)
+    title = models.CharField(max_length=200)
+
+    def __str__(self):
+        return f"Resource for {self.learning_task.title}"
+
+
+admin.site.register(Episode)
+admin.site.register(LearningTask)
+admin.site.register(LearningPath)
+admin.site.register(Resource)

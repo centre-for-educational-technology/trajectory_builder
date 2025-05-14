@@ -1,5 +1,6 @@
 from django import forms
-from .models import LearningPath
+from django.forms import modelformset_factory
+from .models import LearningPath, Episode, LearningTask, Resource
 
 class LearningPathForm(forms.ModelForm):
     class Meta:
@@ -19,7 +20,7 @@ class LearningPathForm(forms.ModelForm):
             'subject':'', 
             'topics':'', 
             'sub_topics':'', 
-            'learning_outcomes':''}
+            'learning_outcomes':'Write each learning outcome in a new line'}
         widgets = {
             'description': forms.Textarea(attrs={'rows': 4}),
             'learning_outcomes': forms.Textarea(attrs={'rows': 4}),
@@ -46,39 +47,20 @@ from .models import Episode, LearningTask
 class EpisodeForm(forms.ModelForm):
     class Meta:
         model = Episode
-        fields = ['title', 'description', 'knowbits', 'skillbits', 'sequence_number']
+        fields = ['title', 'description', 'knowbits', 'skillbits']
         widgets = {
-            'title': forms.TextInput(attrs={
-                'class': 'w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500',
-                'placeholder': 'Enter episode title'
-            }),
-            'description': forms.Textarea(attrs={
-                'class': 'w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500',
-                'rows': 3,
-                'placeholder': 'Describe this episode'
-            }),
-            'knowbits': forms.Select(attrs={
-                'class': 'w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500'
-            }),
-            'skillbits': forms.Select(attrs={
-                'class': 'w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500'
-            }),
-            'sequence_number': forms.NumberInput(attrs={
-                'class': 'w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500',
-                'min': 1
-            })
+            'title': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Enter episode title'}),
+            'description': forms.Textarea(attrs={'class': 'form-control', 'placeholder': 'Describe this episode', 'rows': 3}),
+            'knowbits': forms.Select(attrs={'class': 'form-control'}),
+            'skillbits': forms.Select(attrs={'class': 'form-control'}),
+            'sequence_number': forms.NumberInput(attrs={'class': 'form-control', 'min': 1}),
         }
         labels = {
             'knowbits': 'Knowledge Components',
             'skillbits': 'Skill Components'
         }
 
-    def __init__(self, *args, **kwargs):
-        learning_path = kwargs.pop('learning_path', None)
-        super().__init__(*args, **kwargs)
-        if learning_path:
-            last_episode = Episode.objects.filter(learning_path=learning_path).order_by('-sequence_number').first()
-            self.fields['sequence_number'].initial = (last_episode.sequence_number + 1) if last_episode else 1
+
 
 class LearningTaskForm(forms.ModelForm):
     class Meta:
@@ -86,28 +68,27 @@ class LearningTaskForm(forms.ModelForm):
         fields = ['title', 'description', 'task_type', 'location', 'approximate_time', 'difficulty_level']
         widgets = {
             'title': forms.TextInput(attrs={
-                'class': 'w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500',
+                'class': 'form-control',
                 'placeholder': 'Enter task title'
             }),
             'description': forms.Textarea(attrs={
-                'class': 'w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500',
+                'class': 'form-control',
                 'rows': 3,
                 'placeholder': 'Describe this task'
             }),
             'task_type': forms.Select(attrs={
-                'class': 'w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500'
+                'class': 'form-control'
             }),
             'location': forms.TextInput(attrs={
-                'class': 'w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500',
+                'class': 'form-control',
                 'placeholder': 'Classroom, Lab, etc.'
             }),
             'approximate_time': forms.TextInput(attrs={
-                'class': 'w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500',
-                'type': 'text',
+                'class': 'form-control',
                 'placeholder': 'HH:MM:SS or 1h 30m'
             }),
             'difficulty_level': forms.Select(attrs={
-                'class': 'w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500'
+                'class': 'form-control'
             })
         }
         help_texts = {
@@ -129,3 +110,13 @@ class LearningTaskForm(forms.ModelForm):
             return timedelta(minutes=int(time_str))
         except (ValueError, AttributeError):
             raise forms.ValidationError("Enter time in HH:MM:SS or '1h 30m' format")
+
+class ResourceForm(forms.ModelForm):
+    class Meta:
+        model = Resource
+        fields = ['url','title']
+
+# Formset
+EpisodeFormSet = modelformset_factory(Episode, form=EpisodeForm, can_order=True, can_delete=True,extra=1)  # 'extra' specifies how many empty forms to display
+LearningTaskFormSet = modelformset_factory(LearningTask, form=LearningTaskForm, can_order=True, can_delete=True, extra=1)
+ResourceFormSet = modelformset_factory(Resource, form=ResourceForm, can_order=True, can_delete=True, extra=1)
