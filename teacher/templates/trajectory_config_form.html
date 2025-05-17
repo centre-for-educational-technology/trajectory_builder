@@ -299,6 +299,7 @@ document.addEventListener('DOMContentLoaded', function () {
     deleteButtons.forEach(btn => {
       btn.addEventListener('click', function (e) {
         const episodeId = this.dataset.episodeId;
+        console.log('Episode id to delete',episodeId);
         if (!episodeId) return console.error('No episode ID found');
 
         if (!confirm('Are you sure you want to delete this episode?')) {
@@ -306,7 +307,7 @@ document.addEventListener('DOMContentLoaded', function () {
         }
         console.log('calling delete episode');
         deleteEpisode(episodeId);
-        window.location.reload();
+
       });
     });
 
@@ -316,6 +317,7 @@ document.addEventListener('DOMContentLoaded', function () {
     deleteTaskButtons.forEach(btn => {
       btn.addEventListener('click', function (e) {
         const taskId = this.dataset.taskId;
+        console.log('Task id to delete',taskId);
         if (!taskId) return console.error('No task ID found');
 
         if (!confirm('Are you sure you want to delete this activity?')) {
@@ -324,7 +326,7 @@ document.addEventListener('DOMContentLoaded', function () {
         console.log('calling delete task');
         deleteTask(taskId);
         //console.log('relaoding window');
-        window.location.reload();
+       
       });
     });
 
@@ -625,8 +627,8 @@ document.addEventListener('DOMContentLoaded', function () {
     });
 });
 
-// Handles delete episode event
-function deleteEpisode(episodeId) {
+  // Handles delete episode event
+  function deleteEpisode(episodeId) {
     const url = `/trajectory/episodes/${episodeId}/`;  // your DRF endpoint
     const xhr = new XMLHttpRequest();
 
@@ -641,6 +643,7 @@ function deleteEpisode(episodeId) {
  if (xhr.status === 204) {
         // 204 No Content = deleted
         console.log('episode object deleted',episodeId);
+        window.location.reload();
       } else {
         console.log(xhr.status, xhr.responseText);
       }
@@ -670,7 +673,8 @@ function deleteEpisode(episodeId) {
     xhr.onload = function ()  {
     if (xhr.status === 204) {
         // 204 No Content = deleted
-        console.log('episode object deleted',taskId);
+        console.log('Task object deleted',taskId);
+        window.location.reload();
       } else {
         console.log(xhr.status, xhr.responseText);
       }
@@ -681,10 +685,11 @@ function deleteEpisode(episodeId) {
     };
 
     xhr.send();
+
+    return;
   }
 
-
-  // Handles delete task event
+  // Handles delete resource event
   function deleteResource(resourceId) {
     const url = `/trajectory/resources/${resourceId}/`;  // your DRF endpoint
     const xhr = new XMLHttpRequest();
@@ -702,6 +707,7 @@ function deleteEpisode(episodeId) {
     if (xhr.status === 204) {
         // 204 No Content = deleted
         console.log('episode object deleted',resourceId);
+        window.location.reload();
       } else {
         console.log(xhr.status, xhr.responseText);
       }
@@ -712,6 +718,8 @@ function deleteEpisode(episodeId) {
     };
 
     xhr.send();
+
+    return;
   }
 
 </script>

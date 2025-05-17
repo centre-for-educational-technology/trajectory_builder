@@ -51,6 +51,25 @@ class LearningTaskViewSet(viewsets.ModelViewSet):
         print('Obtained:',episode_id)
         serializer.save(episode_id=episode_id)
 
+    def perform_destroy(self, instance):
+        # <-- called by the default destroy()
+        # you could do extra cleanup/logging here:
+        # log_deletion(user=self.request.user, episode=instance)
+        instance.delete()
+
+    def destroy(self, request, *args, **kwargs):
+        """
+        Override destroy if you need a custom response or additional checks.
+        By default, ModelViewSet.destroy() calls perform_destroy() then
+        returns HTTP 204.
+        """
+        task = self.get_object()
+        self.perform_destroy(task)
+        return Response(
+            {"detail": "Task deleted successfully."},
+            status=status.HTTP_204_NO_CONTENT
+        )
+
 class ResourceViewSet(viewsets.ModelViewSet):
     queryset = Resource.objects.all()
     serializer_class = ResourceSerializer
@@ -64,3 +83,22 @@ class ResourceViewSet(viewsets.ModelViewSet):
         task_id = self.request.data.get('learning_task')
         print('Task:',task_id)
         serializer.save(learning_task_id=task_id)
+
+    def perform_destroy(self, instance):
+        # <-- called by the default destroy()
+        # you could do extra cleanup/logging here:
+        # log_deletion(user=self.request.user, episode=instance)
+        instance.delete()
+
+    def destroy(self, request, *args, **kwargs):
+        """
+        Override destroy if you need a custom response or additional checks.
+        By default, ModelViewSet.destroy() calls perform_destroy() then
+        returns HTTP 204.
+        """
+        resource = self.get_object()
+        self.perform_destroy(resource)
+        return Response(
+            {"detail": "Resource deleted successfully."},
+            status=status.HTTP_204_NO_CONTENT
+        )
