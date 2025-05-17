@@ -1,0 +1,9 @@
+<h2>{{ learning_path.title }} - {{ current_episode.title }}</h2>
+<h3>{{ current_task.title }}</h3>
+<p>{{ current_task.description }}</p>
+
+<form method="post">
+  {% csrf_token %}
+  <button type="submit" name="action" value="complete">Mark Complete</button>
+  <button type="submit" name="action" value="skip">Skip</button>
+</form>
