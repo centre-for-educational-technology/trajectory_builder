@@ -81,7 +81,7 @@
                         </svg>
                        </div> 
                        <h5 class="text-base font-bold mb-0">
-                            {{object.title}}
+                            {{object.title | upper}} 
                        </h5>
                     </div>
                     <div class="mt-1 mb-1 text-sm text-secondary small">
@@ -112,24 +112,24 @@
                                             <p class="episode-description text-muted small">{{episode.description}}</p>
                                         </div>
                                         <div>
-                                            <p class="btn" class="add-link mx-2 text-primary" style="color:blue;font-weight: 500; font-size: .9rem;">Edit</p> 
-                                            <p class="btn delete-episode"  data-episode-id="{{episode.id}}" class="add-link text-danger" style="color:red;font-weight: 500; font-size: .9rem;">Remove Episode</p>
+                                            <p data-episode-id="{{episode.id}}"  data-bs-toggle="modal" data-bs-target="#updateEpisodeModal" class="btn update-episode add-link mx-2 text-primary" style="color:blue;font-weight: 500; font-size: .9rem;">Edit</p> 
+                                            <p data-episode-id="{{episode.id}}" class="btn delete-episode add-link text-danger" style="color:red;font-weight: 500; font-size: .9rem;">Remove Episode</p>
                                         </div>
                                 </div>
                                 <div class="episode-body mt-3">
                                     <template x-for="ep in ep_ids[id]"></template>
                                     <h6 class="mb-2"> Learning Activities </h6>
-                                    <div class="tasks-container mb-3">
+                                    <div class="tasks-container mb-3 ">
                                         {% for task in episode.learning_tasks.all %}
-                                        <div class="task bg-light p-3 rounded-box-sm p-2 mb-3 ">
+                                        <div class="task bg-light p-3 rounded-box-sm shadow-sm p-2 mb-3 ">
                                             <div class="task-header d-flex justify-content-between align-items-start">
                                                 <div>
                                                     <p class="activity-title p-0 m-0">Activity: {{task.title}}</p>
-                                                    <p class="activity-description p-0 m-0  text-muted" style="font-size: .8rem;">Type: {{task.task_type}} | Location: {{task.location}} | Time: {{task.approximate_time}} | Difficulty: {{task_difficulty_level}}</p>
+                                                    <p class="activity-description p-0 m-0  text-muted" style="font-size: .8rem;">Type: {{task.task_type}} | Location: {{task.location}} | Time: {{task.approximate_time}} | Difficulty: {{task.difficulty_level}}</p>
                                                 </div>
                                                 <div>
-                                                    <a href="" class="font-weight-bold text-decoration-none  mx-2 text-blue activity-title">Edit</a> 
-                                                    <a href="" class="font-weight-bold text-danger text-decoration-none activity-title">Remove </a>
+                                                    <p data-task-id="{{task.id}}" data-bs-toggle="modal" data-bs-target="#updateTaskModal" class="btn update-task add-link mx-2 text-primary" style="color:blue;font-weight: 500; font-size: .9rem;">Edit</p> 
+                                                    <p class="btn delete-task text-danger"  data-task-id="{{task.id}}" style="font-weight: 500; font-size: .9rem;">Remove Activity</p>
                                                 </div>
                                             </div>
                                             <div class="task-body mb-0" style="font-size:.9rem;">
@@ -137,7 +137,13 @@
                                                 <div class="resource-container small m-0">
                                                     <ul>
                                                         {% for resource in task.resources.all %}
-                                                        <li>{{resource.title}}</li>
+                                                        <li class="d-flex justify-content-between align-items-center mb-2">
+                                                            <span class="fw-light">{{ resource.title }}</span>
+                                                            <span>
+                                                              <a href="" data-resource-id="{{resource.id}}"  data-bs-toggle="modal" data-bs-target="#updateResourceModal" class="text-primary me-3" style="font-size: inherit; text-decoration: none;">Edit</a>
+                                                              <a href="" data-resource-id="{{resource.id}}"  class="delete-resource text-danger" style="font-size: inherit; text-decoration: none;">Remove Resource</a>
+                                                            </span>
+                                                          </li>
                                                         {% endfor %}
                                                     </ul>
                                                 </div>
@@ -239,6 +245,42 @@
             </div>
             </div>
         </div>
+
+
+         <!-- Update Episode Modal -->
+         <div class="modal fade" id="updateEpisodeModal" tabindex="-1" aria-labelledby="updateEpisodeModalLabel" aria-hidden="true">
+            <div class="modal-dialog">
+            <div class="modal-content">
+                <form id="episodeUpdateForm">
+
+                </form>
+                <!--Populate this modal with Episode update form-->
+            </div>
+            </div>
+        </div>
+
+        <!-- Update Task Modal -->
+        <div class="modal fade" id="updateTaskModal" tabindex="-1" aria-labelledby="updateTaskModalLabel" aria-hidden="true">
+            <div class="modal-dialog">
+            <div class="modal-content">
+                <form id="taskUpdateForm">
+                <!--Populate this modal with Episode update form-->
+                </form>
+            </div>
+            </div>
+        </div>
+
+        <!-- Update Resource Modal -->
+        <div class="modal fade" id="updateResourceModal" tabindex="-1" aria-labelledby="updateResourceModalLabel" aria-hidden="true">
+            <div class="modal-dialog">
+            <div class="modal-content">
+                <form id="resourceUpdateForm">
+                    <!--Populate this modal with Episode update form-->
+                </form>
+            </div>
+            </div>
+        </div>
+
   
     </div>
 </div>
@@ -250,8 +292,8 @@
       window.location.reload();
     }, { once: true });
   }
-document.addEventListener('DOMContentLoaded', function () {
-    
+
+document.addEventListener('DOMContentLoaded', function () { 
     // Attaching event to remove episode
     const deleteButtons = document.querySelectorAll('.delete-episode');
     deleteButtons.forEach(btn => {
@@ -264,8 +306,43 @@ document.addEventListener('DOMContentLoaded', function () {
         }
         console.log('calling delete episode');
         deleteEpisode(episodeId);
-        console.log('relaoding window');
         window.location.reload();
+      });
+    });
+
+
+    // Attaching event to remove task
+    const deleteTaskButtons = document.querySelectorAll('.delete-task');
+    deleteTaskButtons.forEach(btn => {
+      btn.addEventListener('click', function (e) {
+        const taskId = this.dataset.taskId;
+        if (!taskId) return console.error('No task ID found');
+
+        if (!confirm('Are you sure you want to delete this activity?')) {
+          return;
+        }
+        console.log('calling delete task');
+        deleteTask(taskId);
+        //console.log('relaoding window');
+        window.location.reload();
+      });
+    });
+
+
+     // Attaching event to remove task
+     const deleteResourceButtons = document.querySelectorAll('.delete-resource');
+    deleteResourceButtons.forEach(btn => {
+      btn.addEventListener('click', function (e) {
+        const resourceId = this.dataset.resourceId;
+        if (!resourceId) return console.error('No resource ID found');
+
+        if (!confirm('Are you sure you want to delete this resource?')) {
+          return;
+        }
+        console.log('calling delete resource');
+        deleteResource(resourceId);
+        //console.log('relaoding window');
+        //window.location.reload();
       });
     });
 
@@ -277,11 +354,59 @@ document.addEventListener('DOMContentLoaded', function () {
         $(this).find('#modal-episode-id').val(episodeId);
     })
 
-    // Accessing associated episode id in modal
+
+    // Accessing associated task id in modal
     $('#addResourceModal').on('show.bs.modal', function (event) {
         var button = $(event.relatedTarget) ;
-        var episodeId = button.attr('data-tid');
-        $(this).find('#modal-task-id').val(episodeId);
+        var taskId = button.attr('data-tid');
+        $(this).find('#modal-task-id').val(taskId);
+    })
+
+
+    // Populate update episode modal with data form
+    $('#updateEpisodeModal').on('show.bs.modal', function (event) {
+        console.log('called update episode');
+        var button = $(event.relatedTarget) ;
+        var episodeId = button.attr('data-episode-id');
+        console.log('Episode id',episodeId);
+        
+
+        fetch(`/trajectory/episode/${episodeId}/update`)
+        .then(response => response.text())
+        .then(html => {
+            document.getElementById('episodeUpdateForm').innerHTML = html;
+            $(this).find('#modal-episode-id').val(episodeId);
+        })
+        .catch(error => console.log(error));
+    })
+    
+
+    // Populate update task modal with data form
+    $('#updateTaskModal').on('show.bs.modal', function (event) {
+        var button = $(event.relatedTarget) ;
+        var taskId = button.attr('data-task-id');
+
+        fetch(`/trajectory/learningtask/${taskId}/update`)
+        .then(response => response.text())
+        .then(html => {
+            document.getElementById('taskUpdateForm').innerHTML = html;
+            $(this).find('#modal-task-id').val(taskId);
+        })
+        .catch(error => console.log(error));
+    })
+
+    // Populate update resource modal with data form
+    $('#updateResourceModal').on('show.bs.modal', function (event) {
+        var button = $(event.relatedTarget) ;
+        var resourceId = button.attr('data-resource-id');
+
+        fetch(`/trajectory/resource/${resourceId}/update`)
+        .then(response => response.text())
+        .then(html => {
+            document.getElementById('resourceUpdateForm').innerHTML = html;
+            $(this).find('#modal-resource-id').val(resourceId);
+        })
+        .catch(error => console.log(error));
     })
 
 
@@ -329,6 +454,81 @@ document.addEventListener('DOMContentLoaded', function () {
         xhr.send(formData);
     });
 
+
+    // Attaching event for updating episode
+    const episodeUpdate = document.getElementById('episodeUpdateForm');
+    episodeUpdate.addEventListener('submit', function (e) {
+        e.preventDefault();
+        const xhr = new XMLHttpRequest();
+        const formData = new FormData(episodeUpdate);
+        const id = formData.get('id');
+        const csrfToken = document.querySelector('[name=csrfmiddlewaretoken]').value;
+
+        const url = `/trajectory/episode/${id}/update/`;  // your Django API endpoint
+
+        xhr.open('POST', url, true);
+        xhr.setRequestHeader('X-CSRFToken', csrfToken);
+        xhr.send(formData);
+
+        // Close the modal
+        const modal = bootstrap.Modal.getInstance(document.getElementById('updateEpisodeModal'));
+
+        // Refresh page
+        refreshOnModalClose('updateEpisodeModal');
+        modal.hide();
+
+    });
+
+    // Attaching event for updating task
+    const taskUpdate = document.getElementById('taskUpdateForm');
+    taskUpdate.addEventListener('submit', function (e) {
+        e.preventDefault();
+        const xhr = new XMLHttpRequest();
+        const formData = new FormData(taskUpdate);
+        const id = formData.get('id');
+        const csrfToken = document.querySelector('[name=csrfmiddlewaretoken]').value;
+
+        const url = `/trajectory/learningtask/${id}/update/`;  // your Django API endpoint
+
+        xhr.open('POST', url, true);
+        xhr.setRequestHeader('X-CSRFToken', csrfToken);
+        xhr.send(formData);
+
+        // Close the modal
+        const modal = bootstrap.Modal.getInstance(document.getElementById('updateTaskModal'));
+
+        // Refresh page
+        refreshOnModalClose('updateTaskModal');
+        modal.hide();
+
+    });
+
+    // Attaching event for updating resource
+    const resourceUpdate = document.getElementById('resourceUpdateForm');
+    resourceUpdate.addEventListener('submit', function (e) {
+        e.preventDefault();
+        const xhr = new XMLHttpRequest();
+        const formData = new FormData(resourceUpdate);
+        const id = formData.get('id');
+        const csrfToken = document.querySelector('[name=csrfmiddlewaretoken]').value;
+
+        const url = `/trajectory/resource/${id}/update/`;  // your Django API endpoint
+
+        xhr.open('POST', url, true);
+        xhr.setRequestHeader('X-CSRFToken', csrfToken);
+        xhr.send(formData);
+
+        // Close the modal
+        const modal = bootstrap.Modal.getInstance(document.getElementById('updateResourceModal'));
+
+        // Refresh page
+        refreshOnModalClose('updateResourceModal');
+
+        resourceUpdate.reset();
+        modal.hide();
+
+    });
+
     // Attaching event for task form
     const taskForm = document.getElementById('taskForm');
     taskForm.addEventListener('submit', function (e) {
@@ -359,7 +559,7 @@ document.addEventListener('DOMContentLoaded', function () {
                 const modal = bootstrap.Modal.getInstance(document.getElementById('addTaskModal'));
                
                 // Optionally reset the form
-                episodeForm.reset();
+                taskForm.reset();
 
                 modal.hide();
             } else {
@@ -401,18 +601,18 @@ document.addEventListener('DOMContentLoaded', function () {
                 console.log('Resource created successfully:', responseData);
 
                 // Refresh page
-                //refreshOnModalClose('addResourceModal');
+                refreshOnModalClose('addResourceModal');
 
                 // Close the modal
                 const modal = bootstrap.Modal.getInstance(document.getElementById('addResourceModal'));
                
                 // Optionally reset the form
-                //resourceForm.reset();
+                resourceForm.reset();
 
-                //modal.hide();
+                modal.hide();
             } else {
                 console.error('Error response:', xhr.responseText);
-                alert('Failed to create task. Check input or permissions.');
+                alert('Failed to create resource.');
             }
         };
 
@@ -425,6 +625,7 @@ document.addEventListener('DOMContentLoaded', function () {
     });
 });
 
+// Handles delete episode event
 function deleteEpisode(episodeId) {
     const url = `/trajectory/episodes/${episodeId}/`;  // your DRF endpoint
     const xhr = new XMLHttpRequest();
@@ -435,20 +636,79 @@ function deleteEpisode(episodeId) {
     const csrfToken = document.querySelector('[name=csrfmiddlewaretoken]').value;
     // If session-auth:
     xhr.setRequestHeader('X-CSRFToken', csrfToken);
-    // If JWT-auth instead, comment the CSRF line above and use:
-    // xhr.setRequestHeader('Authorization', 'Bearer YOUR_JWT_TOKEN');
 
     xhr.onload = function ()  {
  if (xhr.status === 204) {
         // 204 No Content = deleted
-        onSuccess && onSuccess();
+        console.log('episode object deleted',episodeId);
       } else {
-        onError && onError(xhr.status, xhr.responseText);
+        console.log(xhr.status, xhr.responseText);
       }
     };
 
     xhr.onerror = function () {
-      onError && onError(xhr.status, 'Network error');
+        console.log(xhr.status, 'Network error');
+    };
+
+    xhr.send();
+  }
+
+  // Handles delete task event
+  function deleteTask(taskId) {
+    const url = `/trajectory/learningtasks/${taskId}/`;  // your DRF endpoint
+    const xhr = new XMLHttpRequest();
+
+    xhr.open('DELETE', url, true);
+
+    console.log('Delete task',url);
+    const csrfToken = document.querySelector('[name=csrfmiddlewaretoken]').value;
+    // If session-auth:
+    xhr.setRequestHeader('X-CSRFToken', csrfToken);
+    // If JWT-auth instead, comment the CSRF line above and use:
+    // xhr.setRequestHeader('Authorization', 'Bearer YOUR_JWT_TOKEN');
+
+    xhr.onload = function ()  {
+    if (xhr.status === 204) {
+        // 204 No Content = deleted
+        console.log('episode object deleted',taskId);
+      } else {
+        console.log(xhr.status, xhr.responseText);
+      }
+    };
+
+    xhr.onerror = function () {
+        console.log(xhr.status, 'Network error');
+    };
+
+    xhr.send();
+  }
+
+
+  // Handles delete task event
+  function deleteResource(resourceId) {
+    const url = `/trajectory/resources/${resourceId}/`;  // your DRF endpoint
+    const xhr = new XMLHttpRequest();
+
+    xhr.open('DELETE', url, true);
+
+    console.log('Delete resource',url);
+    const csrfToken = document.querySelector('[name=csrfmiddlewaretoken]').value;
+    // If session-auth:
+    xhr.setRequestHeader('X-CSRFToken', csrfToken);
+    // If JWT-auth instead, comment the CSRF line above and use:
+    // xhr.setRequestHeader('Authorization', 'Bearer YOUR_JWT_TOKEN');
+
+    xhr.onload = function ()  {
+    if (xhr.status === 204) {
+        // 204 No Content = deleted
+        console.log('episode object deleted',resourceId);
+      } else {
+        console.log(xhr.status, xhr.responseText);
+      }
+    };
+
+    xhr.onerror = function () {
+        console.log(xhr.status, 'Network error');
     };
 
     xhr.send();

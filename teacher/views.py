@@ -102,11 +102,11 @@ class EpisodeCreateView(LoginRequiredMixin, CreateView):
 
 class EpisodeUpdateView(LoginRequiredMixin, UpdateView):
     model = Episode
-    fields = ['title', 'description', 'knowbits', 'skillbits', 'sequence_number']
-    template_name = 'episode_form.html'
+    fields = ['title', 'description', 'knowbits', 'skillbits']
+    template_name = 'episode_update_form.html'
     
     def get_success_url(self):
-        return reverse_lazy('learning_path_detail', kwargs={'pk': self.object.learning_path.id})
+        return reverse_lazy('learning_path_config', kwargs={'pk': self.object.learning_path.id})
 
 class EpisodeDeleteView(LoginRequiredMixin, DeleteView):
     model = Episode
@@ -130,14 +130,22 @@ class LearningTaskCreateView(LoginRequiredMixin, CreateView):
 class LearningTaskUpdateView(LoginRequiredMixin, UpdateView):
     model = LearningTask
     fields = ['title', 'description', 'task_type', 'location', 'approximate_time', 'difficulty_level']
-    template_name = 'learningtask_form.html'
+    template_name = 'task_update_form.html'
     
     def get_success_url(self):
-        return reverse_lazy('episode_detail', kwargs={'pk': self.object.episode.id})
+        return reverse_lazy('learning_path_list')
 
 class LearningTaskDeleteView(LoginRequiredMixin, DeleteView):
     model = LearningTask
     template_name = 'learningtask_confirm_delete.html'
+    
+    def get_success_url(self):
+        return reverse_lazy('episode_detail', kwargs={'pk': self.object.episode.id})
+
+class ResourceUpdateView(LoginRequiredMixin, UpdateView):
+    model = Resource
+    fields = ['title', 'url']
+    template_name = 'resource_update_form.html'
     
     def get_success_url(self):
         return reverse_lazy('episode_detail', kwargs={'pk': self.object.episode.id})

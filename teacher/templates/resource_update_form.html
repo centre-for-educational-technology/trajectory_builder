@@ -1,0 +1,19 @@
+{% load crispy_forms_tags %}
+
+    <div class="modal-header">
+        <h5 class="modal-title">Update Resource</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+    </div>
+
+    <div class="modal-body">
+        {% csrf_token %}
+        <div class="mb-3">
+        <input type="hidden" name="id" id="modal-resource-id" value="">
+        {{form | crispy}}
+        </div>
+    </div>
+
+    <div class="modal-footer">
+        <button type="submit" class="btn btn-success">Save</button>
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+    </div>

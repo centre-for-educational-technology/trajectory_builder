@@ -26,7 +26,8 @@
 
             <ul class="list-group">
                 {% for path in learning_paths %}
-                <li class="trajectory d-flex justify-content-between align-items-center p-4 shadow-sm">
+                <a href="{% url 'learning_path_config' path.id%}" style="text-decoration: none;">
+                <li class="trajectory d-flex justify-content-between align-items-center mb-3 p-4 shadow-sm">
                     <div class=" rounded-box">
                         <h6 class="mb-1">{{ path.title | upper }}</h6>
                         <small class="text-muted">{{ path.get_school_level_display }} - {{ path.get_subject_display }}</small> <br/>
@@ -36,6 +37,7 @@
                         <a href="{% url 'learning_path_update' path.pk %}" class="btn btn-sm btn-outline-primary">Edit</a>
                     </div>
                 </li>
+                </a>
                 {% empty %}
                 <li class="list-group-item">No learning paths found.</li>
                 {% endfor %}

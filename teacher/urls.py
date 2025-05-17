@@ -3,7 +3,7 @@ from rest_framework.routers import DefaultRouter
 from .views import (
     EpisodeCreateView, EpisodeUpdateView, EpisodeDeleteView,
     LearningTaskCreateView, LearningTaskUpdateView, LearningTaskDeleteView,
-    LearningPathConfigView
+    LearningPathConfigView, ResourceUpdateView
 )
 from .api import (
         EpisodeViewSet, 
@@ -32,9 +32,7 @@ urlpatterns = [
     path('episode/<int:episode_id>/learningtask/create/', LearningTaskCreateView.as_view(), name='learningtask_create'),
     path('learningtask/<int:pk>/update/', LearningTaskUpdateView.as_view(), name='learningtask_update'),
     path('learningtask/<int:pk>/delete/', LearningTaskDeleteView.as_view(), name='learningtask_delete'),
-    
-    # API Endpoints
-    path('', include(router.urls)),
+
 ]
 urlpatterns = [
     path('create/', LearningPathCreateView.as_view(), name='learning_path_create'),
@@ -44,5 +42,8 @@ urlpatterns = [
     # Add this path to your existing urlpatterns
     path('delete/<int:pk>/', LearningPathDeleteView.as_view(), name='learning_path_delete'),
     path('', include(router.urls)),
+    path('resource/<int:pk>/update/', ResourceUpdateView.as_view(), name='resource_update'),
+    path('learningtask/<int:pk>/update/', LearningTaskUpdateView.as_view(), name='learningtask_update'),
+    path('episode/<int:pk>/update/', EpisodeUpdateView.as_view(), name='episode_update'),
     
 ]
