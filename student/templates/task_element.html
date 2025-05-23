@@ -12,12 +12,6 @@
   <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css">  -->
 
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
-
-  <!-- 
-  <script
-            src="https://code.jquery.com/jquery-3.7.1.slim.min.js"
-            integrity="sha256-kmHvs0B+OpCW5GVHUNjv9rOmY0IvSIRcf7zGUDTDQM8="
-            crossorigin="anonymous"></script> -->
   
   <link rel="stylesheet" href="{% static 'chart.css'%}">
 
@@ -27,7 +21,10 @@
   <!--Font awesome icons -->
     <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.8.2/css/all.css" integrity="sha384-oS3vJWv+0UjzBfQzYUhtDYW+Pj2yciDJxpsK1OYPAYjqT085Qq/1cq5FLXAZQ7Ay" crossorigin="anonymous">
 
-
+  <script
+            src="https://code.jquery.com/jquery-3.7.1.slim.min.js"
+            integrity="sha256-kmHvs0B+OpCW5GVHUNjv9rOmY0IvSIRcf7zGUDTDQM8="
+            crossorigin="anonymous"></script>
 
   <!-- jQuery first, then Popper.js, then Bootstrap JS -->
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.bundle.min.js" integrity="sha384-MrcW6ZMFYlzcLA8Nl+NtUVF0sA7MsXsP1UyJoMp4YLEuNSfAP+JcXn/tWtIaxVXM" crossorigin="anonymous"></script>
@@ -37,50 +34,8 @@
 
   <!-- Alpine library  -->
   <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
-<script>
-  // This ensures dropdowns work (only needed if you're having issues)
-  document.addEventListener('DOMContentLoaded', function() {
-    var dropdownElementList = [].slice.call(document.querySelectorAll('.dropdown-toggle'))
-    var dropdownList = dropdownElementList.map(function (dropdownToggleEl) {
-      return new bootstrap.Dropdown(dropdownToggleEl)
-    });
-  });
-</script>
-<style>
-  .sidebar {
-    height: 100vh;
-    position: sticky;
-    top: 0;
-    background-color: #212529;
-    color: white;
-  }
-  .nav-link {
-    color: rgba(255, 255, 255, 0.75);
-    border-radius: 4px;
-    margin-bottom: 2px;
-  }
-  .nav-link:hover {
-    color: white;
-    background-color: rgba(255, 255, 255, 0.1);
-  }
-  .dropdown-toggle {
-    color: white;
-  }
-  .dropdown-toggle:hover {
-    color: white;
-  }
-  .dropdown-menu {
-    min-width: 100%;
-  }
-  .text-truncate {
-    max-width: 120px;
-    display: inline-block;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: nowrap;
-    vertical-align: middle;
-  }
-</style>
+
+
   <style>
        :root {
   --font-sans: ui-sans-serif, system-ui, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol', 'Noto Color Emoji';
@@ -188,59 +143,64 @@
   <div class="container-fluid">
     <div class="row">
       <!-- Sidebar -->
-      {% include 'sidebar.html' %}
-
-
+      <div class="col-md-3 col-lg-2 sidebar d-flex flex-column align-items-start">
+        <div class="px-3 mb-4">
+          <i class="fas fa-graduation-cap fa-2x me-2"></i><span class="title-two">LearnTrack</span>
+        </div>
+        <nav class="nav flex-column w-100 px-1">
+          <a class="nav-link d-flex align-items-center" href="#">
+            <i class="fas fa-home me-2"></i> Dashboard
+          </a>
+          <a class="nav-link d-flex align-items-center" href="#">
+            <i class="fas fa-route me-2"></i> My Trajectories
+          </a>
+        </nav>
+      </div>
 
       <!-- Main Content -->
       <div class="col-md-9 col-lg-10 b min-vh-100 p-4">
-        <p class="dashboard-title mb-1 mt-2"> Your Learning Dashboard </p>
-        <p class="text-secondary small">Track your progress and continue your learning journey.</p>
-        <!-- Gradient Box -->
-        <div class="gradient-box mb-4 mr-4">
-            <p class="title-two text-bg mb-0">Continue Learning</p>
-            <p class="mb-2 small font-weight-lighter">Pick up where you left off in your current trajectory.</p>
-          
-            <div class="inner-gradient-box p-3">
-              <div>
-                <h6 class="mb-1">Learning Task</h6>
-                <small>Continue where you left off</small>
+        <div class="card rounded-3 shadow-sm">
+          <!-- Header -->
+          <div class="card-header bg-light d-flex justify-content-between align-items-center">
+              <div class="d-flex align-items-center">
+                  <a href="#" class="me-2 text-decoration-none">
+                      <i class="fas fa-arrow-left"></i>
+                  </a>
+                  <h5 class="card-title mb-0">Task Title</h5>
               </div>
-              <div class="arrow-circle">
-                <i class="fas fa-arrow-right"></i>
-              </div>
-            </div>
-          
-            <div class="progress-info small mb-0">2 of 9 activities completed</div>
-        </div>
-        <p class="title-two">Your Trajectories</p>
-        <div class="row g-4">
-            <!-- Card 1 -->
-            <div class="col-md-6 col-lg-4">
-              {% for session in sessions %}
-              <div class="learning-path-card h-100 d-flex flex-column justify-content-between shadow-sm">
-                <div>
-                  <a href="{% url 'learning_path_start' session.id %}"><p class="title-three mb-1">{{ session.label | upper}}</p></a>
-                  <p class="text-secondary small">{{session.description}}</p>
-                
-                </div>
-                <div>
-                    <div class="d-flex justify-content-between text-muted mb-3 small">
-                        <span><i class="fas fa-book me-1"></i>{{ session.learning_path.get_total_tasks}} tasks</span>
-                        <span><i class="fas fa-clock me-1"></i>{{ session.learning_path.get_total_time}}</span>
-                        <span><i class="fas fa-users me-1"></i>42 enrolled</span>
-                      </div>
-                  <div class="progress custom-progress mb-1">
-                    <div class="progress-bar bg-success" role="progressbar" style="width: 22%"></div>
-                  </div>
-                  <div class="small mt-1 text-muted">22% completed</div>
-                </div>
-              </div>
-              {% endfor %}
-            </div>
-          
-            <!-- Duplicate the card structure above for Card 2, Card 3, etc. -->
           </div>
+          
+          <!-- Body -->
+          <div class="card-body">
+              <!-- H5P element -->
+              <div class="h5p-element mb-4">
+                  <!-- This would be replaced with actual H5P content -->
+                  <div style="background: #f5f5f5; height: 500px; display: flex; align-items: center; justify-content: center; border-radius: 8px;">
+                      <p>H5P Content Would Appear Here</p>
+                  </div>
+              </div>
+              
+              <!-- Complete activity button -->
+              <div class="text-center">
+                  <button class="btn btn-primary px-4">Complete activity</button>
+              </div>
+          </div>
+          
+          <!-- Footer -->
+          <div class="card-footer bg-light">
+              <div class="d-flex justify-content-between align-items-center">
+                  <div class="text-muted small">
+                      <span>Type: Omaette</span> - 
+                      <span>Location: Kodus</span> - 
+                      <span>Approximate Time: 5 min</span>
+                  </div>
+                  <div>
+                      <button class="btn btn-sm btn-outline-secondary me-2">Mark as completed</button>
+                      <button class="btn btn-sm btn-primary">Return to Trajectory</button>
+                  </div>
+              </div>
+          </div>
+      </div>
         
       </div>
     </div>
