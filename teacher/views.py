@@ -8,14 +8,14 @@ from .forms import LearningPathForm
 from django.urls import reverse_lazy
 from django.forms import modelformset_factory
 from django.contrib.auth.mixins import LoginRequiredMixin
-from .models import Episode, LearningTask, Resource
+from .models import Episode, LearningTask, Resource, LearningSession
 
 
 from django.urls import reverse
 from django.shortcuts import redirect
 from django.forms import modelformset_factory
 from django.views.generic.edit import FormView
-from .forms import LearningPathForm, ResourceForm, EpisodeForm, LearningTaskForm
+from .forms import LearningPathForm, ResourceForm, EpisodeForm, LearningTaskForm, LearningSessionForm
 from .models import LearningPath, Episode, LearningTask, Resource
 
 
@@ -33,6 +33,70 @@ class LearningPathCreateView(LoginRequiredMixin, CreateView):
     def get_success_url(self):
         return reverse('learning_path_config',kwargs={'pk':self.object.id})
 
+class LearningSessionCreateView(LoginRequiredMixin, CreateView):
+    model = LearningSession
+    form_class = LearningSessionForm
+    template_name = 'session_form.html'  # Reusing the same template
+    # success_url = '/session/list'  # Not needed since we override get_success_url
+    
+    def get_form_kwargs(self):
+        """Pass the request user to the form to filter learning paths"""
+        kwargs = super().get_form_kwargs()
+        kwargs['user'] = self.request.user
+        return kwargs
+    
+    def form_valid(self, form):
+        """Set the created_by user before saving"""
+        form.instance.created_by = self.request.user
+        return super().form_valid(form)
+    
+    def get_success_url(self):
+        """Redirect to the session detail page or configuration page"""
+        return reverse('session_list')
+
+
+class LearningSessionUpdateView(LoginRequiredMixin, UpdateView):
+    model = LearningSession
+    form_class = LearningSessionForm
+    template_name = 'session_form.html'
+    
+    def get_queryset(self):
+        return super().get_queryset().filter(created_by=self.request.user)
+    
+    def get_success_url(self):
+        """Redirect to the session detail page or configuration page"""
+        return reverse('session_list')
+
+
+class LearningSessionListView(ListView):
+    model = LearningSession
+    template_name = 'session_list.html'
+    context_object_name = 'learning_sessions'
+    
+    def get_queryset(self):
+        if self.request.user.is_authenticated:
+            return LearningSession.objects.filter(created_by=self.request.user)
+        return LearningSession.objects.none()
+    
+
+class LearningSessionDeleteView(LoginRequiredMixin, DeleteView):
+    model = LearningSession
+    template_name = 'learningpath_confirm_delete.html'
+    success_url = reverse_lazy('session_list')
+    
+    def get_queryset(self):
+        return super().get_queryset().filter(owner=self.request.user)
+ 
+
+
+class LearningPathDeleteView(LoginRequiredMixin, DeleteView):
+    model = LearningPath
+    template_name = 'learningpath_confirm_delete.html'
+    success_url = reverse_lazy('learning_path_list')
+    
+    def get_queryset(self):
+        return super().get_queryset().filter(owner=self.request.user)
+ 
 
 ##########################################
 class LearningPathConfigView(LoginRequiredMixin, View):

@@ -6,6 +6,7 @@ from django.contrib import admin
 from django.db import models
 from django.contrib.auth.models import User
 
+
 class LearningPath(models.Model):
     # School level choices
     ELEMENTARY = 'EL'
@@ -76,7 +77,41 @@ class LearningPath(models.Model):
         verbose_name = "Learning Path"
         verbose_name_plural = "Learning Paths"
 
-
+class LearningSession(models.Model):
+    # Reuse the same choices from LearningPath for consistency
+    SCHOOL_LEVEL_CHOICES = LearningPath.SCHOOL_LEVEL_CHOICES
+    
+    # Main fields
+    learning_path = models.ForeignKey(
+        LearningPath,
+        on_delete=models.CASCADE,
+        related_name='learning_sessions'
+    )
+    active = models.BooleanField(default=True)
+    created_by = models.ForeignKey(
+        User,
+        on_delete=models.CASCADE,
+        related_name='created_learning_sessions'
+    )
+    school_level = models.CharField(
+        max_length=2,
+        choices=SCHOOL_LEVEL_CHOICES,
+        default=LearningPath.HIGH_SCHOOL,
+    )
+    target_class = models.CharField(max_length=100)  # Could be "Grade 5" or "Class 10B" etc.
+    school = models.CharField(max_length=200)  # Name of the school/institution
+    label = models.CharField(max_length=200)
+    description = models.TextField()
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+    
+    def __str__(self):
+        return f"{self.label} - {self.learning_path.title}"
+    
+    class Meta:
+        verbose_name = "Learning Session"
+        verbose_name_plural = "Learning Sessions"
+        ordering = ['-created_at']
 
 class Episode(models.Model):
     KNOWBIT_CHOICES = [
@@ -142,14 +177,31 @@ class LearningTask(models.Model):
 
 class Resource(models.Model):
     learning_task = models.ForeignKey(LearningTask, on_delete=models.CASCADE, related_name='resources')
-    url = models.URLField(max_length=500)
+    h5p = models.URLField(max_length=500,null=True, blank=True)
+    url = models.URLField(max_length=500,null=True, blank=True)
     title = models.CharField(max_length=200)
 
     def __str__(self):
         return f"Resource for {self.learning_task.title}"
+
+class Enrollment(models.Model):
+    student = models.ForeignKey(User, on_delete=models.CASCADE, related_name='enrollments')
+    learning_path = models.ForeignKey(LearningPath, on_delete=models.CASCADE, related_name='enrollments')
+    enrolled_on = models.DateTimeField(auto_now_add=True)
+    completed = models.BooleanField(default=False)
+    completion_date = models.DateTimeField(null=True, blank=True)
+
+    class Meta:
+        unique_together = ('student', 'learning_path')
+
+    def __str__(self):
+        return f"{self.student.username} enrolled in {self.learning_path}"
+
+
 
 
 admin.site.register(Episode)
 admin.site.register(LearningTask)
 admin.site.register(LearningPath)
 admin.site.register(Resource)
+admin.site.register(Enrollment)

@@ -1,5 +1,5 @@
 from django import forms
-from .models import LearningPath, Episode, LearningTask, Resource
+from .models import LearningPath, Episode, LearningTask, Resource, LearningSession
 
 class LearningPathForm(forms.ModelForm):
     class Meta:
@@ -40,8 +40,47 @@ class LearningPathForm(forms.ModelForm):
         return instance
 
 
-        from django import forms
-from .models import Episode, LearningTask
+class LearningSessionForm(forms.ModelForm):
+    # You can add custom fields or override existing ones
+    def __init__(self, *args, **kwargs):
+        user = kwargs.pop('user', None)  # Get user from kwargs if passed
+        super().__init__(*args, **kwargs)
+        
+        # Filter learning paths to only those owned by the current user
+        if user:
+            self.fields['learning_path'].queryset = LearningPath.objects.filter(owner=user)
+        
+        # Add Bootstrap classes to all fields
+        for field_name, field in self.fields.items():
+            if field_name != 'active':  # Skip checkbox
+                field.widget.attrs['class'] = 'form-control'
+            if field_name == 'description':
+                field.widget.attrs['rows'] = 3
+    
+    class Meta:
+        model = LearningSession
+        fields = [
+            'learning_path',
+            'label',
+            'description',
+            'active',
+            'school_level',
+            'target_class',
+            'school',
+        ]
+        widgets = {
+            'description': forms.Textarea(),
+            'active': forms.CheckboxInput(),
+        }
+        labels = {
+            'learning_path': 'Base Learning Path',
+            'target_class': 'Target Class/Grade',
+        }
+        help_texts = {
+            'learning_path': 'Select the learning path this session is based on',
+            'active': 'Check this box to make the session active immediately',
+        }
+
 
 class EpisodeForm(forms.ModelForm):
     class Meta:
