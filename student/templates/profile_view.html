@@ -1,0 +1,59 @@
+
+{% extends 'base_form.html' %}
+{% load crispy_forms_tags %}
+
+{% block content %}
+<div class="min-vh-100 d-flex flex-column">
+<div class="container mt-5">
+    <div class="row">
+        <div class="col-md-4">
+            <!-- Profile Card -->
+            <div class="card profile-card">
+                <div class="card-body text-center">
+                    <div class="avatar-container mb-4">
+                        <img class="rounded-circle profile-avatar" src="{{ user.profile.avatar.url }}" alt="Profile Image">
+                        <div class="avatar-overlay">
+                            <i class="fas fa-camera"></i>
+                        </div>
+                    </div>
+                    <h3 class="profile-name">{{ user.first_name }} {{ user.last_name }}</h3>
+                    <p class="profile-email text-muted">{{ user.email }}</p>
+                    
+                    <div class="profile-details mt-4">
+                        <div class="detail-item">
+                            <span class="detail-label">School Level:</span>
+                            <span class="detail-value">{{ user.profile.studentprofile.get_school_level_display }}</span>
+                        </div>
+                        <div class="detail-item">
+                            <span class="detail-label">School Name:</span>
+                            <span class="detail-value">{{ user.profile.studentprofile.school_name }}</span>
+                        </div>
+                        <div class="detail-item">
+                            <span class="detail-label">Class:</span>
+                            <span class="detail-value">{{ user.profile.studentprofile.current_class }}</span>
+                        </div>
+                    </div>
+                    
+                    <button class="btn btn-primary mt-4" data-toggle="modal" data-target="#editProfileModal">
+                        <i class="fas fa-edit"></i> Edit Profile
+                    </button>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-md-8">
+            <!-- Additional Content Placeholder -->
+            <div class="card">
+                <div class="card-header">
+                    <h4>Academic Overview</h4>
+                </div>
+                <div class="card-body">
+                    <p class="text-muted">Student performance and progress information would be displayed here.</p>
+                    <!-- You can add charts, progress bars, etc. here -->
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+</div>
+{% endblock %}

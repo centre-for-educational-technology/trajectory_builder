@@ -3,11 +3,14 @@ from django.views import View
 from django.shortcuts import render, redirect
 from django.contrib.auth.mixins import LoginRequiredMixin
 from student.models import TaskInteraction
-from teacher.models import LearningPath, Enrollment, LearningSession
+from teacher.models import Enrollment, LearningSession, LearningTask, Episode
 from django.views.generic import DetailView
 from django.shortcuts import get_object_or_404
 from django.utils import timezone
+from django.db.models import Sum, F, ExpressionWrapper, DurationField
 
+from datetime import timedelta
+from django.contrib import messages
 
 from django.views.generic import UpdateView
 from django.urls import reverse_lazy
@@ -17,59 +20,122 @@ from .forms import StudentProfileUpdateForm
 from users.forms import UpdateProfileForm, UpdateUserForm
 from django.contrib.auth.models import User
 
+def get_episode_metrics_dict(learning_session, student):
+    """
+    Get information on students' progress on learning path
+    """
+    metrics = []
+    
+    episodes = Episode.objects.filter(
+        learning_path=learning_session.learning_path
+    ).order_by('sequence_number')
+    
+    for episode in episodes:
+        # Calculate time spent on completed tasks in this episode
+        time_spent = TaskInteraction.objects.filter(
+            learning_session=learning_session,
+            task__episode=episode,
+            status='completed',
+            student=student.id
+        ).aggregate(
+            total_time=Sum(F('completed_at') - F('started_at'))
+        )['total_time'] or timedelta(0)
+        
+        # Count completed tasks in this episode
+        completed_count = TaskInteraction.objects.filter(
+            learning_session=learning_session,
+            task__episode=episode,
+            status='completed',
+            student=student.id
+        ).count()
+        
+        # Total tasks in episode
+        total_tasks = episode.learning_tasks.count()
 
-class LearningPathDetailView(LoginRequiredMixin, View):
-    def get(self, request, path_id, episode_index=0, task_index=0):
+        # badge
+        episode_status = None
+        if completed_count == total_tasks:
+            episode_status = 'completed'
+        elif completed_count > 0:
+            episode_status = "in-progress"
+        
+        metrics.append({
+            'episode_id': episode.id,
+            'episode_title': episode.title,
+            'episode_description':episode.description,
+            'sequence_number': episode.sequence_number,
+            'total_time_spent': time_spent,
+            'tasks_completed': completed_count,
+            'total_tasks': total_tasks,
+            'episode_status':episode_status,
+            'completion_percentage': round((completed_count / total_tasks * 100) if total_tasks else 0, 2)
+        })
+    
+    return metrics
+
+class LearningPathStudentView(LoginRequiredMixin, View):
+    def get(self, request, session_id):
         student = request.user
-        learning_path = get_object_or_404(LearningPath, id=path_id)
+        learning_session = get_object_or_404(LearningSession, id=session_id)
+        learning_path = learning_session.learning_path
         episodes = learning_path.episodes.all().order_by('sequence_number')
 
-        if episode_index >= len(episodes):
-            return render(request, 'students/learning_complete.html', {'learning_path': learning_path})
+        # Get all task interactions for this student in this learning path
+        interactions = TaskInteraction.objects.filter(learning_session=learning_session, student=self.request.user)
 
-        current_episode = episodes[episode_index]
-        tasks = list(current_episode.learning_tasks.all().order_by('id'))
+        completed = interactions.filter(status='completed')
 
-        if task_index >= len(tasks):
-            # move to next episode
-            return redirect('students:learning_path', path_id=path_id, episode_index=episode_index + 1, task_index=0)
+        total_tasks = learning_path.get_total_tasks()
 
-        current_task = tasks[task_index]
+        print('Total tasks:',total_tasks)
 
-        # Check or create task interaction
-        interaction, created = TaskInteraction.objects.get_or_create(
-            student=student,
-            task=current_task,
-            defaults={'status': 'in_progress'}
-        )
+        total_time = learning_path.get_total_time()
+
+        # Determine current progress and next task
+        current_task = self._determine_current_task(episodes, interactions)
+
+        # Time calculations
+        total_time_spent = interactions.aggregate(
+            total=Sum(F('completed_at') - F('started_at'), output_field=DurationField())
+        )['total'] or timedelta()
+        
+        if current_task is not None:
+            # Get or create interaction for current task
+            interaction, created = TaskInteraction.objects.get_or_create(
+                student=student,
+                task=current_task,
+                learning_session=learning_session,
+                defaults={'status': 'not_started'}
+            )
+        
+        # data for learning path visualization
+        learning_path_progress = get_episode_metrics_dict(learning_session, student)
+
 
         context = {
             'learning_path': learning_path,
-            'current_episode': current_episode,
+            'learning_session':learning_session,
             'current_task': current_task,
-            'interaction': interaction,
-            'episode_index': episode_index,
-            'task_index': task_index,
+            'total_time':total_time,
+            'total_tasks':total_tasks,
+            'completed_tasks':len(interactions.filter(status='completed')),
+            'completion_percentage':(len(completed) * 100/total_tasks),
+            'total_time_spent':total_time_spent,
+            'remaining_time':total_time - total_time_spent,
+            'learning_path_progress':learning_path_progress
         }
         return render(request, 'learning_path.html', context)
+    
+    def _determine_current_task(self, episodes, interactions):
+        """Determine which task should be presented to the student next"""
+        # Find first incomplete task based on interaction status
+        for episode in episodes:
+            for task in episode.learning_tasks.order_by('id'):
+                interaction = interactions.filter(task=task).first()
+                if not interaction or interaction.status != 'completed':
+                    return task
+        return None
 
-    def post(self, request, path_id, episode_index=0, task_index=0):
-        action = request.POST.get('action')
-        student = request.user
-        learning_path = get_object_or_404(LearningPath, id=path_id)
-        episodes = learning_path.episodes.all().order_by('sequence_number')
-        current_episode = episodes[episode_index]
-        tasks = list(current_episode.learning_tasks.all().order_by('id'))
-        current_task = tasks[task_index]
-
-        if action == 'complete':
-            interaction = TaskInteraction.objects.get(student=student, task=current_task)
-            interaction.status = 'completed'
-            interaction.completed_at = timezone.now()
-            interaction.save()
-
-        # move to next task (or next episode handled in GET)
-        return redirect('students:learning_path', path_id=path_id, episode_index=episode_index, task_index=task_index + 1)
 
 
 class StudentDashboardView(LoginRequiredMixin, View):
@@ -81,22 +147,112 @@ class StudentDashboardView(LoginRequiredMixin, View):
 
         sessions = LearningSession.objects.all()
 
-        # Get in-progress tasks
-        in_progress_tasks = TaskInteraction.objects.filter(
-            student=student,
-            status='in_progress'
-        ).select_related('task', 'task__episode', 'task__episode__learning_path')
+        sessions_extends = []
+
+        for session in sessions:
+            session_dict = {'object':session}
+
+            interactions = TaskInteraction.objects.filter(learning_session=session, student=self.request.user,status='completed')
+            session_dict['completed'] = len(interactions)
+            session_dict['total_time'] = session.learning_path.get_total_time()
+            session_dict['total_tasks'] = session.learning_path.get_total_tasks()
+            session_dict['completion_percentage'] = (len(interactions) * 100/session_dict['total_tasks'])
+            session_dict['enrolled'] = 1
+
+            sessions_extends.append(session_dict)
 
         context = {
-            'enrollments': enrollments,
-            'in_progress_tasks': in_progress_tasks,
-            'sessions':sessions
+            'sessions_extends':sessions_extends
         }
         return render(request, 'dashboard.html', context)
 
 class TaskView(LoginRequiredMixin, View):
-    def get(self, request):
-        return render(request, 'task_element.html',{})
+    def get(self, request, session_id, task_id):
+        learning_session = get_object_or_404(LearningSession, id=session_id)
+        learning_path = learning_session.learning_path
+
+        current_task = LearningTask.objects.get(id=task_id)
+
+        # Get or create interaction for current task
+        interaction, created = TaskInteraction.objects.get_or_create(
+            student=self.request.user,
+            task=current_task,
+            learning_session=learning_session
+        )
+
+        if not created:
+            interaction.status = 'in_progress'
+            interaction.save()
+
+        context = {
+            'task':current_task,
+            'learning_session':learning_session,
+            'interaction':interaction
+        }
+
+        return render(request, 'task_element.html',context)
+    
+    def post(self, request, *args, **kwargs):
+        # Get form data
+        interaction_id = request.POST.get('interaction_id')
+        task_id = request.POST.get('task_id')
+        session_id = request.POST.get('session_id')
+            
+        # Validate required fields
+        if not interaction_id or not task_id or not session_id:
+            raise ValueError("Missing required fields")
+            
+        # Get objects with permission check
+        interaction = get_object_or_404(
+            TaskInteraction,
+            id=interaction_id,
+            student=request.user  # Ensure user owns this interaction
+        )
+
+        learning_session = get_object_or_404(LearningSession,
+                                          id=session_id)
+            
+        task = get_object_or_404(
+            LearningTask,
+            id=task_id
+        )
+            
+        # Update the interaction
+        interaction.status = 'completed'
+        interaction.completed_at = timezone.now()
+        interaction.save()
+            
+        messages.success(request, f'Task "{task.title}" marked as completed!')
+
+        episodes = learning_session.learning_path.episodes.all().order_by('sequence_number')
+
+        
+
+        # Get all task interactions for this student in this learning path
+        interactions = TaskInteraction.objects.filter(learning_session=learning_session, 
+                                                      student=self.request.user)
+    
+        # Determine current progress and next task
+        current_task = self._determine_current_task(episodes, interactions)
+
+        if current_task is None:
+            return redirect('learning_path',session_id=learning_session.id)
+        else:
+
+            return redirect('learning_path_task',session_id=learning_session.id,task_id=current_task.id)
+
+    def _determine_current_task(self, episodes, interactions):
+        """Determine which task should be presented to the student next"""
+        # Find first incomplete task based on interaction status
+        for episode in episodes:
+            for task in episode.learning_tasks.order_by('id'):
+                interaction = interactions.filter(task=task).first()
+                if not interaction or interaction.status != 'completed':
+                    return task
+        return None
+
+
+
     
 class StudentProfileDetailView(LoginRequiredMixin, DetailView):
     model = StudentProfile

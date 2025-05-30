@@ -190,8 +190,6 @@
       <!-- Sidebar -->
       {% include 'sidebar.html' %}
 
-
-
       <!-- Main Content -->
       <div class="col-md-9 col-lg-10 b min-vh-100 p-4">
         <p class="dashboard-title mb-1 mt-2"> Your Learning Dashboard </p>
@@ -217,23 +215,23 @@
         <div class="row g-4">
             <!-- Card 1 -->
             <div class="col-md-6 col-lg-4">
-              {% for session in sessions %}
+              {% for session in sessions_extends %}
               <div class="learning-path-card h-100 d-flex flex-column justify-content-between shadow-sm">
                 <div>
-                  <a href="{% url 'learning_path_start' session.id %}"><p class="title-three mb-1">{{ session.label | upper}}</p></a>
-                  <p class="text-secondary small">{{session.description}}</p>
+                  <a href="{% url 'learning_path' session.object.learning_path.id %}"><p class="title-three mb-1">{{ session.object.label | upper}}</p></a>
+                  <p class="text-secondary small">{{session.object.description}}</p>
                 
                 </div>
                 <div>
                     <div class="d-flex justify-content-between text-muted mb-3 small">
-                        <span><i class="fas fa-book me-1"></i>{{ session.learning_path.get_total_tasks}} tasks</span>
-                        <span><i class="fas fa-clock me-1"></i>{{ session.learning_path.get_total_time}}</span>
-                        <span><i class="fas fa-users me-1"></i>42 enrolled</span>
+                        <span><i class="fas fa-book me-1"></i>{{ session.total_tasks}} tasks</span>
+                        <span><i class="fas fa-clock me-1"></i>{{ session.total_time}}</span>
+                        <span><i class="fas fa-users me-1"></i>{{ session.enrolled}} enrolled</span>
                       </div>
                   <div class="progress custom-progress mb-1">
-                    <div class="progress-bar bg-success" role="progressbar" style="width: 22%"></div>
+                    <div class="progress-bar bg-success" role="progressbar" style="width: {{session.completion_percentage}}%"></div>
                   </div>
-                  <div class="small mt-1 text-muted">22% completed</div>
+                  <div class="small mt-1 text-muted">{{session.completion_percentage | stringformat:"d"}}% completed</div>
                 </div>
               </div>
               {% endfor %}
