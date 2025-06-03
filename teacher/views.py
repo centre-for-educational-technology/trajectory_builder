@@ -208,7 +208,7 @@ class LearningTaskDeleteView(LoginRequiredMixin, DeleteView):
 
 class ResourceUpdateView(LoginRequiredMixin, UpdateView):
     model = Resource
-    fields = ['title', 'url']
+    fields = ['title','h5p', 'url']
     template_name = 'resource_update_form.html'
     
     def get_success_url(self):

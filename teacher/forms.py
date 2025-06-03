@@ -1,5 +1,6 @@
 from django import forms
 from .models import LearningPath, Episode, LearningTask, Resource, LearningSession
+from datetime import timedelta
 
 class LearningPathForm(forms.ModelForm):
     class Meta:
@@ -152,10 +153,11 @@ class LearningTaskForm(forms.ModelForm):
 class ResourceForm(forms.ModelForm):
     class Meta:
         model = Resource
-        fields = ['title','url']
+        fields = ['title','h5p','url']
         widgets = {
-            'title': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Enter episode title'}),
-            'url': forms.URLInput(attrs={'class': 'form-control', 'placeholder': 'Enter episode title'}),
+            'title': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Enter title here'}),
+            'h5p': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'H5P element here'}),
+            'url': forms.URLInput(attrs={'class': 'form-control', 'placeholder': 'External resource'}),
             
         }
 

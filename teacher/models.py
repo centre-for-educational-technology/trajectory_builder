@@ -1,5 +1,5 @@
 from django.db import models
-
+from datetime import timedelta
 # Create your models here.
 
 from django.contrib import admin
@@ -73,6 +73,67 @@ class LearningPath(models.Model):
     def __str__(self):
         return self.title
     
+
+    def get_total_time(self):
+        """
+        Calculate the total approximate time for this learning path
+        by summing all tasks' approximate_time from all episodes.
+        Returns the total time in minutes (or whatever unit you're using).
+        """
+        total_time = timedelta()
+        
+        # Iterate through all episodes in this learning path
+        for episode in self.episodes.all():
+            # Sum all tasks' approximate_time in this episode
+            episode_time = episode.learning_tasks.aggregate(
+                total=models.Sum('approximate_time')
+            )['total'] or 0
+            
+            total_time += episode_time
+            
+        return total_time
+    
+    def get_total_tasks(self):
+        """
+        Calculate the total approximate time for this learning path
+        by summing all tasks' approximate_time from all episodes.
+        Returns the total time in minutes (or whatever unit you're using).
+        """
+        total_tasks = 0
+        
+        # Iterate through all episodes in this learning path
+        for episode in self.episodes.all():
+            # Sum all tasks' approximate_time in this episode
+            tasks = episode.learning_tasks.aggregate(
+                total=models.Count('id')
+            )['total'] or 0
+            total_tasks += tasks
+            
+        return total_tasks
+    
+    def get_task_type_counts(self):
+        """
+        Returns a dictionary with counts of each task type in this learning path.
+        Example return value: {'IND': 5, 'GRP': 3, 'WHOLE': 2}
+        """
+        from django.db.models import Count
+        
+        # Get all tasks in this learning path through episodes
+        tasks = LearningTask.objects.filter(episode__learning_path=self)
+        
+        # Annotate counts for each task type
+        type_counts = tasks.values('task_type').annotate(count=Count('task_type'))
+        
+        # Convert to a dictionary {task_type: count}
+        result = {item['task_type']: item['count'] for item in type_counts}
+        
+        # Ensure all task types are represented, even if count is 0
+        for task_type in dict(LearningTask.TASK_TYPE_CHOICES).keys():
+            if task_type not in result:
+                result[task_type] = 0
+        
+        return result
+
     class Meta:
         verbose_name = "Learning Path"
         verbose_name_plural = "Learning Paths"
@@ -149,6 +210,7 @@ class Episode(models.Model):
     def __str__(self):
         return f"{self.sequence_number}. {self.title}"
 
+
 class LearningTask(models.Model):
     TASK_TYPE_CHOICES = [
         ('IND', 'Individual'),
@@ -175,6 +237,7 @@ class LearningTask(models.Model):
     def __str__(self):
         return self.title
 
+
 class Resource(models.Model):
     learning_task = models.ForeignKey(LearningTask, on_delete=models.CASCADE, related_name='resources')
     h5p = models.URLField(max_length=500,null=True, blank=True)
@@ -183,6 +246,7 @@ class Resource(models.Model):
 
     def __str__(self):
         return f"Resource for {self.learning_task.title}"
+
 
 class Enrollment(models.Model):
     student = models.ForeignKey(User, on_delete=models.CASCADE, related_name='enrollments')
@@ -196,8 +260,6 @@ class Enrollment(models.Model):
 
     def __str__(self):
         return f"{self.student.username} enrolled in {self.learning_path}"
-
-
 
 
 admin.site.register(Episode)

@@ -40,6 +40,9 @@
 .text-blue{
  color:blue;
 }
+.text-red{
+    color:brown;
+}
 .bg-blue{
  background-color:blue;
  color:white;
@@ -51,7 +54,13 @@
     font-size: .8rem;
     font-weight: 450;
 }
+.add-link{
+    font-size: .8rem;
+    font-weight: 600;
+}
+
 </style>
+
 <div class="min-vh-100 d-flex flex-column">
     <div class="container">
         <!-- Top white bar -->
@@ -91,56 +100,7 @@
                 </div>
             </div>   
         </div>
-        <div class="container shadow-md">
-            <div class="my-4"><hr/></div>
-            <h5 class="font-weight-bold"> Trajectory episodes</h5>
-            <p class="text-muted small">Build the structure of your instructional trajectory by adding episodes and learning activities.</p>
-            <div class="episodes-container  p-0 mb-4 mt-4">
-                <div class="episode bg-white rounded-box shadow-sm border px-4 py-4 mb-5">
-                    <div class="episode-header  d-flex justify-content-between align-items-start mb-3">
-                        <div>
-                            <h5 class="episode-title">Episode 1: Example Introduction</h5>
-                            <p class="episode-description text-muted small">Description for the first example episode goes here.</p>
-                        </div>
-                        <div>
-                            <a href="" class="font-weight-bold text-decoration-none  mx-3 text-blue activity-title">Edit</a> 
-                            <a href="" class="font-weight-bold text-danger text-decoration-none activity-title">Remove Episode</a>
-                        </div>
-                    </div>
-                    <hr/>
-                    <div class="episode-body mt-3">
-                        <h6 class="mb-2"> Learning Activities </h6>
-                        <div class="tasks-container mb-3">
-                            <div class="task bg-light p-3 rounded-box-sm p-2 ">
-                                <div class="task-header d-flex justify-content-between align-items-start">
-                                    <div>
-                                        <p class="activity-title p-0 m-0">Activity: Initial Brainstorm</p>
-                                        <p class="activity-description p-0 m-0  text-muted" style="font-size: .8rem;">Type: Whole Class | Location: School | Time: 15min | Difficulty: 2</p>
-                                    </div>
-                                    <div>
-                                        <a href="" class="font-weight-bold text-decoration-none  mx-2 text-blue activity-title">Edit</a> 
-                                        <a href="" class="font-weight-bold text-danger text-decoration-none activity-title">Remove </a>
-                                    </div>
-                                </div>
-                                <div class="task-body mt-2" style="font-size:.9rem;">
-                                    <p class="m-0 p-0 small" style="font-weight: 500;">Resources:</p>
-                                    <div class="resource-container small ">
-                                        <ul>
-                                            <li>Resource Title Example 1</li>
-                                        </ul>
-                                    </div>
-                                </div>
-                                <a href="" class="text-bold-light text-blue text-decoration-none add-resource-link">+ Add Resource</a>
-                            </div>
-                        </div>
-                        <button class="btn text-blue" style="background-color: aliceblue; font-size: .9rem; font-weight: 600;">+ Add Learning Activity</button>
-                    </div>
-                </div>
-
-
-            </div> 
-            <button class="btn bg-primary text-white"><i class="bi bi-plus-circle"></i> Add New Episode</button>
-        </div>
+        <div class="my-2"></div>
     </div>
 </div>
 {% endblock %}
