@@ -46,7 +46,8 @@
               {{request.user.email}}
             </a>
             <div class="dropdown-menu" aria-labelledby="navbarScrollingDropdown">
-
+              <a class="dropdown-item" href="/student/profile">{% trans 'My Account' %}</a>
+              <hr class="dropdown-divider">
               <a class="dropdown-item" href="{% url 'learning_path_list' %}">{% trans 'Learning Trajectories' %}</a>
               <a class="dropdown-item" href="{% url 'session_list' %}">{% trans 'Learning Sessions' %}</a>
               <hr class="dropdown-divider">

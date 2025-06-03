@@ -97,15 +97,10 @@ class UpdateUserForm(forms.ModelForm):
                                     'placeholder': _('last name'),
                                     'class': 'form-control'
                                 }))
-    
-    username = forms.CharField(max_length=100,
-                               required=True,
-                               widget=forms.TextInput(attrs={
-                                   'class': 'form-control',
-                                }))
+
     class Meta:
         model = User
-        fields = ['first_name', 'last_name', 'username']    
+        fields = ['first_name', 'last_name']    
 
 
 
