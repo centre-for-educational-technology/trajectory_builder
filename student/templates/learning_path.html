@@ -130,17 +130,18 @@
     </style>
 
       <!-- Main Content -->
-      <div class="col-md-9 col-lg-10 b min-vh-100 p-4">
+      <div class=" min-vh-100">
         <p class="dashboard-title mb-1 mt-2"> {{learning_path.title}} </p>
         <p class="text-secondary small">{{learning_path.description}}</p>
         <!-- Gradient Box -->
-        <div class="bg-white rounded-md border-gray shadow-sm p-4 mb-4">
+        <div class="bg-white rounded-xl border-gray shadow p-4 mb-4">
           <!-- Title -->
           <p class="title-two">Trajectory Progress</p>
 
           <!-- Stats Boxes Row -->
           <div class="row p-4">
               <!-- Completion Box -->
+               
               <div class="col col-4"> 
                 <div class="rounded-md me-2 p-3 shadow-sm" style="background-color: #e0e5f6;">
                   <div class="d-flex align-items-center mb-2">
@@ -150,10 +151,9 @@
                   <div class="title-two text-indigo-dark mb-1" style="font-weight: 800; font-size: 1.9rem;">{{completion_percentage |  stringformat:"d"}}%</div>
                   <div class="small text-muted">{{completed_tasks}} of {{total_tasks}} activities</div>
                 </div>
-              </div>
-        
+              </div>       
                 <!-- Time Investment Box -->
-                <div class="col col-4"> 
+              <div class="col col-4"> 
                 <div class="rounded-md p-3 me-2" style="background-color: #f3e8ff;">
                     <div class="d-flex align-items-center mb-2">
                       <i class="fas fa-clock text-purple me-2"></i>  <!-- Changed mr-2 to me-2 -->
@@ -185,7 +185,7 @@
                   <i class="fas fa-users text-primary me-4 fs-5"></i>
                   <div>
                       <small class="text-muted d-block">Group</small>
-                      <span class="font-weight-bold" style="font-weight: 700;">3 activities</span>
+                      <span class="font-weight-bold" style="font-weight: 700;">{{task_counts.GRP}} activities</span>
                   </div>
               </div>
               
@@ -194,20 +194,20 @@
                   <i class="fas fa-user-graduate text-info me-4 fs-5"></i>
                   <div>
                       <small class="text-muted d-block">Individual</small>
-                      <span class="font-weight-bold" style="font-weight: 700;">4 activities</span>
+                      <span class="font-weight-bold" style="font-weight: 700;">{{task_counts.IND}}  activities</span>
                   </div>
               </div>
               
               <!-- Box 3 -->
               <div class="rounded-md p-3 bg-light shadow-sm d-flex align-items-center flex-grow-1 me-2" style="min-width: 180px;">
-                  <i class="fas fa-video text-warning me-4 fs-5"></i>
+                  <i class="fas  fa-chalkboard text-warning me-4 fs-5"></i>
                   <div>
-                      <small class="text-muted d-block">Video</small>
-                      <span class="font-weight-bold" style="font-weight: 700;">2 activities</span>
+                      <small class="text-muted d-block">Whole classroom</small>
+                      <span class="font-weight-bold" style="font-weight: 700;">{{task_counts.WHOLE}} activities</span>
                   </div>
               </div>
               
-              <!-- Box 4 -->
+              <!-- 
               <div class="rounded-md p-3 bg-light shadow-sm  d-flex align-items-center flex-grow-1" style="min-width: 180px;">
                   <i class="fas fa-file-alt text-success me-4 fs-5"></i>
                   <div>
@@ -215,6 +215,8 @@
                       <span class="font-weight-bold" style="font-weight: 700;">5 activities</span>
                   </div>
               </div>
+              Box 4 -->
+              
           </div>
           <h6 class="font-weight-600 mb-3">Overall Progress</h6>
     
@@ -225,7 +227,7 @@
 
         <!--Choose your activity box-->
         {% if current_task %}
-        <div class="rounded-md border-gray shadow-sm p-4 mb-4" style="background-color:#eef2ff;">
+        <div class="rounded-xl border-gray shadow-sm p-4 mb-4" style="background-color:#eef2ff;">
           <h2 class="text-lg fw-semibold text-indigo-900 mb-4">Choose Your Next Activity</h2>
           <p class="text-sm text-indigo-700 mb-5">Based on your progress, you can choose one of these activities to continue your learning journey.</p>
           
@@ -260,7 +262,7 @@
         {% endif %}
 
         <!-- Visualization of learning path-->
-        <div class="rounded-md border-gray shadow-sm p-4 mb-4 py-4">
+        <div class="rounded-md border-gray shadow p-4 mb-4 py-4">
           <h2 class="fw-bold mb-4">Learning Path Progress</h2>
      
           <!-- Learning Path Visualization -->
@@ -271,7 +273,13 @@
 
                   <div class="path-node-container">
                       <div class="path-node {{progress.episode_status}}">
-                          <div class="node-tag bg-success">{{progress.episode_status}}</div>
+                          {% if progress.episode_status == "completed" %}
+                            <div class="node-tag bg-success">{{progress.episode_status}}</div>
+                          {% elif progress.episode_status == "in-progress" %}
+                            <div class="node-tag bg-primary">{{progress.episode_status}}</div>
+                          {% else %}
+                            <div class="node-tag bg-secondary">{{progress.episode_status}}</div>
+                          {% endif %}
                           <div class="node-content">
                               <h5 class="fw-bold">{{progress.episode_title}}</h5>
                               <p class="text-muted small">{{progress.episode_description}}</p>

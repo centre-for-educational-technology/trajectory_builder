@@ -1,30 +1,26 @@
-<div class="col-md-3 col-lg-2 sidebar d-flex flex-column align-items-start">
-        <div class="px-3 mb-4">
-          <i class="fas fa-graduation-cap fa-2x me-2"></i><span class="title-two">LearnTrack</span>
-        </div>
-        <nav class="nav flex-column w-100 px-1 mb-auto">
-          <a class="nav-link d-flex align-items-center" href="#">
-            <i class="fas fa-home me-2"></i> Dashboard
-          </a>
-          <a class="nav-link d-flex align-items-center" href="#">
-            <i class="fas fa-route me-2"></i> My Trajectories
-          </a>
-        </nav>
+<div class="px-3 mb-4">
+  <i class="fas fa-graduation-cap fa-2x me-2"></i><span class="title-two">LearnTrack</span>
+</div>
 
-        <!-- User Profile Dropdown - Fixed Version -->
-        <div class="dropdown mt-auto w-100 px-3 py-2 border-top">
-          <a href="#" class="d-flex align-items-center text-decoration-none dropdown-toggle" role="button"
-            id="userDropdown" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-            <img src="{{ user.profile.avatar.url }}" 
-                class="rounded-circle me-2" 
-                width="32" 
-                height="32" 
-                alt="Profile picture">
-            <span class="text-truncate">{{ user.get_full_name|default:user.username }}</span>
-          </a>
-          <ul class="dropdown-menu dropdown-menu-dark" aria-labelledby="userDropdown">
-            <li><a class="dropdown-item" href="">Update Profile</a></li>
-            <li><a class="dropdown-item" href="{% url 'logout' %}">Logout</a></li>
-          </ul>
-        </div>
+<nav class="nav flex-column w-100 px-1 mb-auto">
+  <a class="nav-link d-flex align-items-center" href="{% url 'student_dashboard'%}">
+    <i class="fas fa-home me-2"></i> Dashboard
+  </a>
+  <!--<a class="nav-link d-flex align-items-center" href="#">
+    <i class="fas fa-route me-2"></i> My Trajectories
+  </a>-->
+</nav>
+
+
+<!-- User Profile Dropdown - Fixed Version -->
+<div class="dropdown mt-auto w-100 px-3 py-2 border-top">
+  <a href="#" class="d-flex align-items-center text-decoration-none dropdown-toggle show" role="button"
+    id="userDropdown" data-bs-toggle="dropdown" aria-expanded="false">
+    <img src="{{ user.profile.avatar.url }}" class="rounded-circle me-2" width="32" height="32" alt="Profile picture">
+    <span class="text-truncate">{{ user.get_full_name|default:user.username }}</span>
+  </a>
+  <ul class="dropdown-menu dropdown-menu-dark" aria-labelledby="userDropdown">
+    <li><a class="dropdown-item" href="{% url 'student_profile_update' %}">Update Profile</a></li>
+    <li><a class="dropdown-item" href="{% url 'logout' %}">Logout</a></li>
+  </ul>
 </div>

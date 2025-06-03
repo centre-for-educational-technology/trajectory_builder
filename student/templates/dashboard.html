@@ -1,250 +1,65 @@
+{% extends 'student_base.html' %}
+{% load crispy_forms_tags %}
 {% load static%}
-<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Learning Dashboard</title>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-  
-  <!-- Font awesome icons 
-  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css">  -->
+{% block content %}
+<!-- Main Content -->
 
-  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+<p class="dashboard-title mb-1 mt-2"> Your Learning Dashboard </p>
+<p class="text-secondary small">Track your progress and continue your learning journey.</p>
 
-  <!-- 
-  <script
-            src="https://code.jquery.com/jquery-3.7.1.slim.min.js"
-            integrity="sha256-kmHvs0B+OpCW5GVHUNjv9rOmY0IvSIRcf7zGUDTDQM8="
-            crossorigin="anonymous"></script> -->
-  
-  <link rel="stylesheet" href="{% static 'chart.css'%}">
+{% if current_task %}
+<!-- Gradient Box -->
+<div class="gradient-box mb-4 mr-4">
+  <p class="title-two text-bg mb-0">Continue Learning</p>
+  <p class="mb-2 small font-weight-lighter">Pick up where you left off in your current trajectory.</p>
 
-  <!-- Bootstrap CSS -->
-  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC" crossorigin="anonymous">
-
-  <!--Font awesome icons -->
-    <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.8.2/css/all.css" integrity="sha384-oS3vJWv+0UjzBfQzYUhtDYW+Pj2yciDJxpsK1OYPAYjqT085Qq/1cq5FLXAZQ7Ay" crossorigin="anonymous">
-
-
-
-  <!-- jQuery first, then Popper.js, then Bootstrap JS -->
-  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.bundle.min.js" integrity="sha384-MrcW6ZMFYlzcLA8Nl+NtUVF0sA7MsXsP1UyJoMp4YLEuNSfAP+JcXn/tWtIaxVXM" crossorigin="anonymous"></script>
-
-  <!-- A plugin for password show/hide 
-  <script src="https://unpkg.com/bootstrap-show-password@1.2.1/dist/bootstrap-show-password.min.js"></script> -->
-
-  <!-- Alpine library  -->
-  <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
-<script>
-  // This ensures dropdowns work (only needed if you're having issues)
-  document.addEventListener('DOMContentLoaded', function() {
-    var dropdownElementList = [].slice.call(document.querySelectorAll('.dropdown-toggle'))
-    var dropdownList = dropdownElementList.map(function (dropdownToggleEl) {
-      return new bootstrap.Dropdown(dropdownToggleEl)
-    });
-  });
-</script>
-<style>
-  .sidebar {
-    height: 100vh;
-    position: sticky;
-    top: 0;
-    background-color: #212529;
-    color: white;
-  }
-  .nav-link {
-    color: rgba(255, 255, 255, 0.75);
-    border-radius: 4px;
-    margin-bottom: 2px;
-  }
-  .nav-link:hover {
-    color: white;
-    background-color: rgba(255, 255, 255, 0.1);
-  }
-  .dropdown-toggle {
-    color: white;
-  }
-  .dropdown-toggle:hover {
-    color: white;
-  }
-  .dropdown-menu {
-    min-width: 100%;
-  }
-  .text-truncate {
-    max-width: 120px;
-    display: inline-block;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: nowrap;
-    vertical-align: middle;
-  }
-</style>
-  <style>
-       :root {
-  --font-sans: ui-sans-serif, system-ui, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol', 'Noto Color Emoji';
-  --font-serif: ui-serif, Georgia, Cambria, 'Times New Roman', Times, serif;
-  --font-mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, 'Liberation Mono', 'Courier New', monospace;
-}
-        body {
-    font-family: var(--font-sans);
-  }
-  .dashboard-title {
-    font-size: 1.6rem;
-    font-weight: bold;
-  }
- 
-
-    .sidebar {
-      height: 100vh;
-      background-color: #212529;
-      color: white;
-      padding-top: 20px;
-    }
-    .sidebar .app-title {
-      font-size: 1.5rem;
-
-    }
-    .sidebar .nav-link {
-      color: white;
-    }
-    .gradient-box {
-    background: linear-gradient(90deg, #6366f1, #9333ea); /* Indigo to Purple */
-    color: white;
-    padding: 20px;
-    border-radius: 15px;
-  }
-
-  .inner-gradient-box {
-  background: rgba(255, 255, 255, 0.1); /* Light translucent overlay */
-  backdrop-filter: blur(10px);
-  -webkit-backdrop-filter: blur(10px); /* Safari support */
-  border-radius: 10px;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-
-}
-
-/* Hover effect with increased blur and deeper shadow */
-.inner-gradient-box:hover {
-  backdrop-filter: blur(20px);
-  -webkit-backdrop-filter: blur(16px);
-  box-shadow: 0 6px 30px rgba(0, 0, 0, 0.15);
-}
-
-  .title-two {
-    font-size: 1.5rem;
-    font-weight: 500;
-  }
-
-  .title-three {
-    font-size: 1rem;
-    font-weight: 600;
-  }
-  .arrow-circle {
-    background-color: white;
-    color: #9333ea;
-    border-radius: 50%;
-    width: 40px;
-    height: 40px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 1.2rem;
-  }
-
-  .progress-info {
-    font-size: 0.9rem;
-    margin-top: 10px;
-    opacity: 1.2;
-  }
-  .learning-path-card {
-  border: 1px solid #ddd;
-  border-radius: 12px;
-  padding: 20px;
-  background-color: white;
-  display: flex;
-  flex-direction: column;
-  justify-content: space-between;
-  min-height: 260px; /* ← Adjust this as desired */
-}
-
-.custom-progress {
-  height: 10px;
-  border-radius: 50px;
-  background-color: #eee;
-  overflow: hidden;
-}
-
-.custom-progress .progress-bar {
-  border-radius: 50px;
-}
-
-  </style>
-</head>
-<body>
-  <div class="container-fluid">
-    <div class="row">
-      <!-- Sidebar -->
-      {% include 'sidebar.html' %}
-
-      <!-- Main Content -->
-      <div class="col-md-9 col-lg-10 b min-vh-100 p-4">
-        <p class="dashboard-title mb-1 mt-2"> Your Learning Dashboard </p>
-        <p class="text-secondary small">Track your progress and continue your learning journey.</p>
-        <!-- Gradient Box -->
-        <div class="gradient-box mb-4 mr-4">
-            <p class="title-two text-bg mb-0">Continue Learning</p>
-            <p class="mb-2 small font-weight-lighter">Pick up where you left off in your current trajectory.</p>
-          
-            <div class="inner-gradient-box p-3">
-              <div>
-                <h6 class="mb-1">Learning Task</h6>
-                <small>Continue where you left off</small>
-              </div>
-              <div class="arrow-circle">
-                <i class="fas fa-arrow-right"></i>
-              </div>
-            </div>
-          
-            <div class="progress-info small mb-0">2 of 9 activities completed</div>
-        </div>
-        <p class="title-two">Your Trajectories</p>
-        <div class="row g-4">
-            <!-- Card 1 -->
-            <div class="col-md-6 col-lg-4">
-              {% for session in sessions_extends %}
-              <div class="learning-path-card h-100 d-flex flex-column justify-content-between shadow-sm">
-                <div>
-                  <a href="{% url 'learning_path' session.object.learning_path.id %}"><p class="title-three mb-1">{{ session.object.label | upper}}</p></a>
-                  <p class="text-secondary small">{{session.object.description}}</p>
-                
-                </div>
-                <div>
-                    <div class="d-flex justify-content-between text-muted mb-3 small">
-                        <span><i class="fas fa-book me-1"></i>{{ session.total_tasks}} tasks</span>
-                        <span><i class="fas fa-clock me-1"></i>{{ session.total_time}}</span>
-                        <span><i class="fas fa-users me-1"></i>{{ session.enrolled}} enrolled</span>
-                      </div>
-                  <div class="progress custom-progress mb-1">
-                    <div class="progress-bar bg-success" role="progressbar" style="width: {{session.completion_percentage}}%"></div>
-                  </div>
-                  <div class="small mt-1 text-muted">{{session.completion_percentage | stringformat:"d"}}% completed</div>
-                </div>
-              </div>
-              {% endfor %}
-            </div>
-          
-            <!-- Duplicate the card structure above for Card 2, Card 3, etc. -->
-          </div>
-        
-      </div>
+  <div class="inner-gradient-box p-3">
+    <div>
+      <h6 class="mb-1">{{current_task.title}}</h6>
+      <small>Continue where you left off</small>
+    </div>
+    <div class="arrow-circle">
+      <a href="{% url 'learning_path_task' current_session.id current_task.id %}"><i class="fas fa-arrow-right"></i></a>
     </div>
   </div>
 
-  <!-- Bootstrap JS -->
-  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
-</body>
-</html>
+  <div class="progress-info small mb-0">{{current_session_completed}} of {{current_session_total}} activities completed
+  </div>
+</div>
+{% endif %}
+
+<p class="title-two">Your Trajectories</p>
+<div class="d-flex flex-row flex-wrap gap-3">
+  <!-- Card 1 -->
+  
+    {% for session in sessions_extends %}
+    
+    <div class="learning-path-card h-100 d-flex flex-column justify-content-between shadow-sm p-3" style="width: 100%; max-width: 350px; min-width: 220px;">
+      <div class="mb-3">
+        <a href="{% url 'learning_path' session.object.id %}">
+          <p class="title-three mb-1">{{ session.object.label | upper}}</p>
+        </a>
+        <p class="text-secondary small">{{session.object.description}}</p>
+      </div>
+      <div>
+        <div class="d-flex justify-content-between text-muted mb-3 small">
+          <span><i class="fas fa-book me-1"></i>{{ session.total_tasks}} tasks</span>
+          <span><i class="fas fa-clock me-1"></i>{{ session.total_time}}</span>
+          <span><i class="fas fa-users me-1"></i>{{ session.enrolled}} enrolled</span>
+        </div>
+        <div class="progress custom-progress mb-1">
+          <div class="progress-bar bg-success" role="progressbar" style="width: {{session.completion_percentage}}%">
+          </div>
+        </div>
+        <div class="small mt-1 text-muted">{{session.completion_percentage | stringformat:"d"}}% completed</div>
+      </div>
+    </div>
+
+    {% endfor %}
+  </div>
+
+  <!-- Duplicate the card structure above for Card 2, Card 3, etc. -->
+</div>
+
+</div>
+{% endblock %}
