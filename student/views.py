@@ -48,15 +48,25 @@ def get_episode_metrics_dict(learning_session, student):
             status='completed',
             student=student.id
         ).count()
+
+        # Count completed tasks in this episode
+        in_progress_count = TaskInteraction.objects.filter(
+            learning_session=learning_session,
+            task__episode=episode,
+            status='in_progress',
+            student=student.id
+        ).count()
         
         # Total tasks in episode
         total_tasks = episode.learning_tasks.count()
+
+        print("In progress:",in_progress_count)
 
         # badge
         episode_status = None
         if completed_count == total_tasks:
             episode_status = 'completed'
-        elif completed_count > 0:
+        elif in_progress_count > 0:
             episode_status = "in-progress"
         else:
             episode_status = "not-started"
@@ -72,8 +82,8 @@ def get_episode_metrics_dict(learning_session, student):
             'episode_status':episode_status,
             'completion_percentage': round((completed_count / total_tasks * 100) if total_tasks else 0, 2)
         })
-    
     return metrics
+
 
 class LearningPathStudentView(LoginRequiredMixin, View):
     def get(self, request, session_id):
