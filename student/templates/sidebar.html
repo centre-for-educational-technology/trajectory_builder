@@ -20,6 +20,8 @@
     <span class="text-truncate">{{ user.get_full_name|default:user.username }}</span>
   </a>
   <ul class="dropdown-menu dropdown-menu-dark" aria-labelledby="userDropdown">
+    <li><a class="dropdown-item" href="{% url 'session_list' %}">Teacher view (for testing only)</a></li>
+    <li class="dropdown-divider"></li>
     <li><a class="dropdown-item" href="{% url 'student_profile_update' %}">Update Profile</a></li>
     <li><a class="dropdown-item" href="{% url 'logout' %}">Logout</a></li>
   </ul>
