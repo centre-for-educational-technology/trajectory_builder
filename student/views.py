@@ -58,6 +58,8 @@ def get_episode_metrics_dict(learning_session, student):
             episode_status = 'completed'
         elif completed_count > 0:
             episode_status = "in-progress"
+        else:
+            episode_status = "not-started"
         
         metrics.append({
             'episode_id': episode.id,
@@ -98,6 +100,8 @@ class LearningPathStudentView(LoginRequiredMixin, View):
         total_time_spent = interactions.aggregate(
             total=Sum(F('completed_at') - F('started_at'), output_field=DurationField())
         )['total'] or timedelta()
+
+        remaining_time = total_time - total_time_spent
         
         if current_task is not None:
             # Get or create interaction for current task
@@ -108,8 +112,11 @@ class LearningPathStudentView(LoginRequiredMixin, View):
                 defaults={'status': 'not_started'}
             )
         
-        # data for learning path visualization
+        # Data for learning path visualization
         learning_path_progress = get_episode_metrics_dict(learning_session, student)
+
+        # Learning path tasks type count
+        task_counts = learning_path.get_task_type_counts()
 
 
         context = {
@@ -121,8 +128,9 @@ class LearningPathStudentView(LoginRequiredMixin, View):
             'completed_tasks':len(interactions.filter(status='completed')),
             'completion_percentage':(len(completed) * 100/total_tasks),
             'total_time_spent':total_time_spent,
-            'remaining_time':total_time - total_time_spent,
-            'learning_path_progress':learning_path_progress
+            'remaining_time':0 if (remaining_time < timedelta(0)) else remaining_time,
+            'learning_path_progress':learning_path_progress,
+            'task_counts':task_counts
         }
         return render(request, 'learning_path.html', context)
     
@@ -149,6 +157,18 @@ class StudentDashboardView(LoginRequiredMixin, View):
 
         sessions_extends = []
 
+        interactions = TaskInteraction.objects.filter(student=self.request.user).exclude(status ='completed').order_by('-started_at')
+        current_task = None
+        current_session = None
+        context = {}
+
+        if len(interactions) != 0:
+            interaction = interactions.first()
+            current_task = interaction.task
+            current_session = interaction.learning_session
+            context['current_task'] = current_task
+            context['current_session'] = current_session
+
         for session in sessions:
             session_dict = {'object':session}
 
@@ -161,9 +181,12 @@ class StudentDashboardView(LoginRequiredMixin, View):
 
             sessions_extends.append(session_dict)
 
-        context = {
-            'sessions_extends':sessions_extends
-        }
+            if current_session is not None and current_session == session:
+                context['current_session_completed'] = session_dict['completed']
+                context['current_session_total'] = session_dict['total_tasks']
+
+        context['sessions_extends'] =sessions_extends
+        
         return render(request, 'dashboard.html', context)
 
 class TaskView(LoginRequiredMixin, View):
