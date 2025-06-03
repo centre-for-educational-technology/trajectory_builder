@@ -255,7 +255,7 @@ class TaskView(LoginRequiredMixin, View):
         interaction.completed_at = timezone.now()
         interaction.save()
             
-        messages.success(request, f'Task "{task.title}" marked as completed!')
+        # messages.success(request, f'Task "{task.title}" marked as completed!')
 
         episodes = learning_session.learning_path.episodes.all().order_by('sequence_number')
 
