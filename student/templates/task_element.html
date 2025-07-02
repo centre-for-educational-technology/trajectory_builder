@@ -197,7 +197,7 @@
           <!-- Body -->
           <div class="card-body">
               <!-- H5P element -->
-
+              <form>{% csrf_token %}</form>
               <div class="h5p-container">
                 {% for resource in task.resources.all %}
                   {% if resource.h5p %}
@@ -252,6 +252,41 @@
   <script>
     // Function to resize iframe
 document.addEventListener('DOMContentLoaded', function() {
+
+      window.addEventListener('message', (event) => {
+      // Optional: check origin for security
+      if (event.origin !== 'https://vara.h5p.ee') {
+        console.warn('Untrusted origin:', event.origin);
+        return;
+      }
+
+      if (event.data.context == 'h5p' && event.data.action == 'xAPIStatement'){
+          // event.data contains the message sent from iframe
+          console.log('Received message from iframe:', event.data);
+           const statement = event.data.statement;  // xAPI statement is inside event.data.statement
+
+          // Send the xAPI statement to Django backend
+          fetch('/student/xapi/', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(statement),
+          })
+          .then(response => response.json())
+          .then(data => {
+            console.log('xAPI statement saved:', data);
+          })
+          .catch(error => {
+            console.error('Error sending xAPI statement:', error);
+          });
+
+
+      }
+      
+
+      // Do whatever you want with the data here
+    });
   // Function to resize iframes based on content
   function resizeH5PIframes() {
     const iframes = document.querySelectorAll('.h5p-wrapper iframe');
@@ -261,6 +296,7 @@ document.addEventListener('DOMContentLoaded', function() {
       window.addEventListener('message', function receiveMessage(event) {
         try {
           const data = JSON.parse(event.data);
+          console.log(data);
           if (data.context !== 'h5p' || !data.event || data.event !== 'resize') return;
           
           data.data.height = '400px';

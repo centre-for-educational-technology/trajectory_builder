@@ -8,6 +8,26 @@ from django.utils import timezone
 from users.models import Profile
 from django.contrib import admin
 
+class XAPIStatement(models.Model):
+    # The full xAPI statement JSON stored raw
+    statement = models.JSONField()  # Django 3.1+ has built-in JSONField for all DB backends
+    
+    # Parsed key fields for easier access and querying
+    actor = models.CharField(max_length=255, blank=True, null=True)
+    verb = models.CharField(max_length=255, blank=True, null=True)
+    object_id = models.CharField(max_length=255, blank=True, null=True)
+    result = models.TextField(blank=True, null=True)  # result can be complex JSON
+    timestamp = models.DateTimeField(auto_now=True)
+    
+    # To track which user in Django the statement belongs to (optional)
+    user = models.ForeignKey('auth.User', on_delete=models.SET_NULL, blank=True, null=True)
+    
+    # When the statement was received
+    received_at = models.DateTimeField(auto_now_add=True)
+    
+    def __str__(self):
+        return f"xAPI Statement by {self.actor} - {self.verb} at {self.timestamp}"
+
 class StudentProfile(models.Model):
     """Extends Profile with school and class information"""
     # School level choices (similar to your LearningPath)
@@ -145,3 +165,4 @@ class ResourceInteraction(models.Model):
         return f"{self.student.username} viewed {self.resource}"
 
 admin.site.register(TaskInteraction)
+admin.site.register(XAPIStatement)

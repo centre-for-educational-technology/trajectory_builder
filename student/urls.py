@@ -1,5 +1,5 @@
 from django.urls import path
-from .views import StudentDashboardView, LearningPathStudentView, TaskView, StudentProfileUpdateView, StudentProfileDetailView
+from .views import StudentDashboardView, LearningPathStudentView, TaskView, StudentProfileUpdateView, StudentProfileDetailView,XAPIStatementReceiver
 
 
 urlpatterns = [
@@ -8,4 +8,5 @@ urlpatterns = [
     path('profile/', StudentProfileDetailView.as_view(), name='student_profile'),
     path('learning-path/<int:session_id>/', LearningPathStudentView.as_view(), name='learning_path'),
     path('learning-path/<int:session_id>/task/<int:task_id>', TaskView.as_view(), name='learning_path_task'),
+    path('xapi/', XAPIStatementReceiver.as_view(), name='xapi-receiver'),
 ]

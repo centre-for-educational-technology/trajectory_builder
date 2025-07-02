@@ -12,10 +12,16 @@ from django.db.models import Sum, F, ExpressionWrapper, DurationField
 from datetime import timedelta
 from django.contrib import messages
 
+import json
+import dateutil.parser
+from django.http import JsonResponse
+from django.utils.decorators import method_decorator
+from django.views.decorators.csrf import csrf_exempt
+
 from django.views.generic import UpdateView
 from django.urls import reverse_lazy
 from django.contrib.messages.views import SuccessMessageMixin
-from .models import Profile, StudentProfile
+from .models import Profile, StudentProfile, XAPIStatement
 from .forms import StudentProfileUpdateForm
 from users.forms import UpdateProfileForm, UpdateUserForm
 from django.contrib.auth.models import User
@@ -84,6 +90,37 @@ def get_episode_metrics_dict(learning_session, student):
         })
     return metrics
 
+@method_decorator(csrf_exempt, name='dispatch')  
+class XAPIStatementReceiver(View):
+    """
+    Store xAPI statements
+    """
+    def post(self, request, *args, **kwargs):
+        try:
+            data = json.loads(request.body)
+        except json.JSONDecodeError:
+            return JsonResponse({'error': 'Invalid JSON'}, status=400)
+
+        # Parse key fields
+        actor = data.get('actor', {}).get('name', '') or data.get('actor', {}).get('mbox', '')
+        verb = data.get('verb', {}).get('display', {}).get('en-US', '') or data.get('verb', {}).get('id', '')
+        object_id = data.get('object', {}).get('id', '')
+        result = data.get('result', None)
+        timestamp_str = data.get('timestamp', None)
+        timestamp = dateutil.parser.parse(timestamp_str) if timestamp_str else None
+
+        # Save the statement
+        xapi_statement = XAPIStatement.objects.create(
+            statement=data,
+            actor=actor,
+            verb=verb,
+            object_id=object_id,
+            result=result,
+            timestamp=timestamp,
+            user=request.user if request.user.is_authenticated else None,
+        )
+
+        return JsonResponse({'message': 'xAPI statement saved', 'id': xapi_statement.id})
 
 class LearningPathStudentView(LoginRequiredMixin, View):
     def get(self, request, session_id):
@@ -199,6 +236,7 @@ class StudentDashboardView(LoginRequiredMixin, View):
         
         return render(request, 'dashboard.html', context)
 
+
 class TaskView(LoginRequiredMixin, View):
     def get(self, request, session_id, task_id):
         learning_session = get_object_or_404(LearningSession, id=session_id)
@@ -259,8 +297,6 @@ class TaskView(LoginRequiredMixin, View):
 
         episodes = learning_session.learning_path.episodes.all().order_by('sequence_number')
 
-        
-
         # Get all task interactions for this student in this learning path
         interactions = TaskInteraction.objects.filter(learning_session=learning_session, 
                                                       student=self.request.user)
@@ -285,8 +321,6 @@ class TaskView(LoginRequiredMixin, View):
         return None
 
 
-
-    
 class StudentProfileDetailView(LoginRequiredMixin, DetailView):
     model = StudentProfile
     template_name = 'profile_view.html'
@@ -294,6 +328,7 @@ class StudentProfileDetailView(LoginRequiredMixin, DetailView):
 
     def get_object(self):
         return self.request.user
+
 
 class StudentProfileUpdateView(LoginRequiredMixin, SuccessMessageMixin, UpdateView):
     template_name = 'update_student_profile.html'
