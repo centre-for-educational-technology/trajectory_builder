@@ -155,9 +155,9 @@ class ResourceForm(forms.ModelForm):
         model = Resource
         fields = ['title','h5p','url']
         widgets = {
-            'title': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Enter title here'}),
-            'h5p': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'H5P element here'}),
-            'url': forms.URLInput(attrs={'class': 'form-control', 'placeholder': 'External resource'}),
+            'title': forms.TextInput(attrs={'class': 'form-control','id':'resourceTitle', 'placeholder': 'Enter title here'}),
+            'h5p': forms.TextInput(attrs={'class': 'form-control', 'id':'searchInput','placeholder': 'Search H5P element here'}),
+            'url': forms.URLInput(attrs={'class': 'form-control', 'placeholder': 'External resource url'}),
             
         }
 
