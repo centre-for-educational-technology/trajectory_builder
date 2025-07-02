@@ -59,6 +59,13 @@
     font-weight: 600;
 }
 
+#resultsList li {
+  padding: 8px 12px;
+  cursor: pointer;
+}
+#resultsList li:hover {
+  background-color: #f0f0f0;
+}
 </style>
 
 <div class="min-vh-100 d-flex flex-column">
@@ -233,7 +240,45 @@
                     {% csrf_token %}
                     <div class="mb-3">
                         <input type="hidden" name="learning_task" id="modal-task-id" value="">
-                        {{resource_form | crispy}}
+
+                        <div id="div_id_title" class="form-group"> 
+                            <label for="resourceTitle" class=" requiredField">  
+                                Title<span class="asteriskField">*</span> 
+                            </label> 
+                            <div> 
+                                <input type="text" name="title" class="form-control textinput" id="resourceTitle" placeholder="Enter title here" maxlength="200" required=""> 
+                            </div> 
+                        </div> 
+                        <div id="div_id_h5p" class="form-group"> 
+                            <label for="searchInput" class="">
+                                H5p
+                            </label> 
+                            <div  style="position: relative; width: 100%;"> 
+                                <input type="text" name="h5p" class="form-control textinput" id="searchInput" placeholder="Search H5P element here" maxlength="500"> 
+                                <ul id="resultsList" style="position: absolute;
+                                        top: 100%;
+                                        left: 0;
+                                        right: 0;
+                                        z-index: 1000;
+                                        background: white;
+                                        border: 1px solid #ccc;
+                                        border-top: none;
+                                        max-height: 200px;
+                                        overflow-y: auto;
+                                        list-style: none;
+                                        margin: 0;
+                                        padding: 0;
+                                    "></ul>
+                            </div> 
+                        </div> 
+                        <div id="div_id_url" class="form-group"> 
+                            <label for="id_url" class="">
+                                        Url
+                            </label> 
+                            <div> 
+                                <input type="url" name="url" class="form-control urlinput" placeholder="External resource" maxlength="500" id="id_url"> 
+                            </div> 
+                        </div>      
                     </div>
                 </div>
         
@@ -286,11 +331,11 @@
 </div>
 <script>
     function refreshOnModalClose(modalId) {
-    const modalEl = document.getElementById(modalId);
-    if (!modalEl) return;
-    modalEl.addEventListener('hidden.bs.modal', () => {
-      window.location.reload();
-    }, { once: true });
+        const modalEl = document.getElementById(modalId);
+        if (!modalEl) return;
+        modalEl.addEventListener('hidden.bs.modal', () => {
+        window.location.reload();
+        }, { once: true });
   }
 
 document.addEventListener('DOMContentLoaded', function () { 
@@ -359,6 +404,8 @@ document.addEventListener('DOMContentLoaded', function () {
 
     // Accessing associated task id in modal
     $('#addResourceModal').on('show.bs.modal', function (event) {
+        $(this).find('#resourceTitle').val('');
+         $(this).find('#searchInput').val('');
         var button = $(event.relatedTarget) ;
         var taskId = button.attr('data-tid');
         $(this).find('#modal-task-id').val(taskId);
@@ -582,10 +629,11 @@ document.addEventListener('DOMContentLoaded', function () {
     // Attaching event for resource form
     const resourceForm = document.getElementById('resourceForm');
     resourceForm.addEventListener('submit', function (e) {
+        console.log('Button clicked');
         e.preventDefault();
 
         const xhr = new XMLHttpRequest();
-        const url = '/trajectory/resources/';  // your Django API endpoint
+        const url = '/trajectory/resources/';  //  Django API endpoint
 
         console.log('Resource handler called');
 
@@ -608,7 +656,7 @@ document.addEventListener('DOMContentLoaded', function () {
                 // Close the modal
                 const modal = bootstrap.Modal.getInstance(document.getElementById('addResourceModal'));
                
-                // Optionally reset the form
+                // Reset the form
                 resourceForm.reset();
 
                 modal.hide();
@@ -625,6 +673,56 @@ document.addEventListener('DOMContentLoaded', function () {
 
         xhr.send(formData);
     });
+
+    // Attaching event for searching h5p elements
+    const searchInput = document.getElementById('searchInput');
+    const resourceTitle = document.getElementById('resourceTitle');
+    const resultsList = document.getElementById('resultsList');
+    let debounceTimeout;
+
+    searchInput.addEventListener('input', function () {
+        const query = searchInput.value.trim();
+
+        clearTimeout(debounceTimeout);
+        debounceTimeout = setTimeout(() => {
+        if (!query) {
+            resultsList.innerHTML = '';
+            return;
+        }
+
+        const apiUrl = `/trajectory/vara/h5p-search?q=${encodeURIComponent(query)}`;
+        console.log(apiUrl);
+        fetch(apiUrl)
+            .then(response => response.json())
+            .then(data => {
+            resultsList.innerHTML = '';
+            if (data.results && data.results.length > 0) {
+                data.results.forEach(item => {
+                const li = document.createElement('li');
+                li.innerHTML = `<a href="${item.embedUrl}" target="_blank">${item.title}</a>`;
+                resultsList.appendChild(li);
+                });
+            } else {
+                resultsList.innerHTML = '<li>No results found</li>';
+            }
+            })
+            .catch(err => {
+            console.error('Error:', err);
+            resultsList.innerHTML = '<li>Error fetching results</li>';
+            });
+        }, 300);
+    });
+
+    // Fill input when item is clicked
+    resultsList.addEventListener('click', function(e) {
+        if (e.target.tagName === 'A') {
+        e.preventDefault();
+        searchInput.value = e.target.href;
+        resourceTitle.value = e.target.textContent;
+        resultsList.innerHTML = '';
+        }
+    });
+
 });
 
   // Handles delete episode event

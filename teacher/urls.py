@@ -16,7 +16,8 @@ from .views import (
     LearningPathCreateView, 
     LearningPathUpdateView, 
     LearningPathListView,
-    LearningPathDeleteView
+    LearningPathDeleteView,
+    H5PProxySearchView
 )
 
 router = DefaultRouter()
@@ -55,5 +56,8 @@ urlpatterns = [
     path('resource/<int:pk>/update/', ResourceUpdateView.as_view(), name='resource_update'),
     path('learningtask/<int:pk>/update/', LearningTaskUpdateView.as_view(), name='learningtask_update'),
     path('episode/<int:pk>/update/', EpisodeUpdateView.as_view(), name='episode_update'),
+
+    # Vara h5p elements
+    path('vara/h5p-search', H5PProxySearchView.as_view(), name='h5p_proxy_search'),
     
 ]

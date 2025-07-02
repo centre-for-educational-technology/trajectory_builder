@@ -9,14 +9,37 @@ from django.urls import reverse_lazy
 from django.forms import modelformset_factory
 from django.contrib.auth.mixins import LoginRequiredMixin
 from .models import Episode, LearningTask, Resource, LearningSession
+import requests
 
+from django.conf import settings
 
+from django.http import JsonResponse
 from django.urls import reverse
 from django.shortcuts import redirect
 from django.forms import modelformset_factory
 from django.views.generic.edit import FormView
 from .forms import LearningPathForm, ResourceForm, EpisodeForm, LearningTaskForm, LearningSessionForm
 from .models import LearningPath, Episode, LearningTask, Resource
+
+
+class H5PProxySearchView(View):
+    def get(self, request):
+        query = request.GET.get('q', '')
+        print('Query:',query)
+        if not query:
+            return JsonResponse({'results': []})
+
+        # Build the external API URL
+        api_url = f'https://vara.h5p.ee/api/search-materials?q={query}' # Vara API call
+        
+        try:
+            # Make the request with basic auth
+            response = requests.get(api_url, auth=(settings.H5P_API_USER, settings.H5P_API_PASS))
+            data = response.json()
+            print('Obtained:',data)
+            return JsonResponse({'results': data.get('materials', [])})
+        except Exception as e:
+            return JsonResponse({'results': [], 'error': str(e)}, status=500)
 
 
 class LearningPathCreateView(LoginRequiredMixin, CreateView):
