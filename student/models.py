@@ -31,26 +31,23 @@ class XAPIStatement(models.Model):
 class StudentProfile(models.Model):
     """Extends Profile with school and class information"""
     # School level choices (similar to your LearningPath)
-    ELEMENTARY = 'EL'
-    MIDDLE_SCHOOL = 'MS'
-    HIGH_SCHOOL = 'HS'
-    COLLEGE = 'CO'
-    UNIVERSITY = 'UN'
-    OTHER = 'OT'
+    PRIMARY = 'PR'
+    UPPER = 'UP'
+    LOWER = 'LO'
+    GYM = 'GY'
+
     
     SCHOOL_LEVEL_CHOICES = [
-        (ELEMENTARY, 'Elementary School'),
-        (MIDDLE_SCHOOL, 'Middle School'),
-        (HIGH_SCHOOL, 'High School'),
-        (COLLEGE, 'College'),
-        (UNIVERSITY, 'University'),
-        (OTHER, 'Other'),
+        (PRIMARY, 'Primary School'),
+        (UPPER, 'Upper Secondary School'),
+        (LOWER, 'Lower Secondary School'),
+        (GYM, 'Gymnasium'),
     ]
     
     school_level = models.CharField(
         max_length=2,
         choices=SCHOOL_LEVEL_CHOICES,
-        default=HIGH_SCHOOL,
+        default=PRIMARY,
     )
     # one-to-one mapping with Django User model
     profile = models.OneToOneField(Profile, on_delete=models.CASCADE)

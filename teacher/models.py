@@ -8,22 +8,20 @@ from django.contrib.auth.models import User
 
 
 class LearningPath(models.Model):
-    # School level choices
-    ELEMENTARY = 'EL'
-    MIDDLE_SCHOOL = 'MS'
-    HIGH_SCHOOL = 'HS'
-    COLLEGE = 'CO'
-    UNIVERSITY = 'UN'
-    OTHER = 'OT'
+    PRIMARY = 'PR'
+    UPPER = 'UP'
+    LOWER = 'LO'
+    GYM = 'GY'
+
     
     SCHOOL_LEVEL_CHOICES = [
-        (ELEMENTARY, 'Elementary School'),
-        (MIDDLE_SCHOOL, 'Middle School'),
-        (HIGH_SCHOOL, 'High School'),
-        (COLLEGE, 'College'),
-        (UNIVERSITY, 'University'),
-        (OTHER, 'Other'),
+        (PRIMARY, 'Primary School'),
+        (UPPER, 'Upper Secondary School'),
+        (LOWER, 'Lower Secondary School'),
+        (GYM, 'Gymnasium'),
     ]
+    
+    
     
     # Subject choices (can be expanded as needed)
     MATH = 'MA'
@@ -50,7 +48,7 @@ class LearningPath(models.Model):
     school_level = models.CharField(
         max_length=2,
         choices=SCHOOL_LEVEL_CHOICES,
-        default=HIGH_SCHOOL,
+        default=PRIMARY,
     )
     subject = models.CharField(
         max_length=2,
@@ -157,10 +155,10 @@ class LearningSession(models.Model):
     school_level = models.CharField(
         max_length=2,
         choices=SCHOOL_LEVEL_CHOICES,
-        default=LearningPath.HIGH_SCHOOL,
+        default=LearningPath.PRIMARY,
     )
-    target_class = models.CharField(max_length=100)  # Could be "Grade 5" or "Class 10B" etc.
-    school = models.CharField(max_length=200)  # Name of the school/institution
+    #target_class = models.CharField(max_length=100)  # Could be "Grade 5" or "Class 10B" etc.
+    #school = models.CharField(max_length=200)  # Name of the school/institution
     label = models.CharField(max_length=200)
     description = models.TextField()
     created_at = models.DateTimeField(auto_now_add=True)

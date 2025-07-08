@@ -65,9 +65,6 @@ class LearningSessionForm(forms.ModelForm):
             'label',
             'description',
             'active',
-            'school_level',
-            'target_class',
-            'school',
         ]
         widgets = {
             'description': forms.Textarea(),
@@ -75,7 +72,6 @@ class LearningSessionForm(forms.ModelForm):
         }
         labels = {
             'learning_path': 'Base Learning Path',
-            'target_class': 'Target Class/Grade',
         }
         help_texts = {
             'learning_path': 'Select the learning path this session is based on',
