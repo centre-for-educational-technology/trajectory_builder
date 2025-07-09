@@ -66,8 +66,6 @@ def get_episode_metrics_dict(learning_session, student):
         # Total tasks in episode
         total_tasks = episode.learning_tasks.count()
 
-        print("In progress:",in_progress_count)
-
         # badge
         episode_status = None
         if completed_count == total_tasks:
@@ -76,6 +74,23 @@ def get_episode_metrics_dict(learning_session, student):
             episode_status = "in-progress"
         else:
             episode_status = "not-started"
+
+        episode_tasks = []
+        for task in episode.learning_tasks.all():
+            task_info ={}
+            
+            task_info['id'] = task.id
+            task_info['title'] = task.title
+
+            interaction = TaskInteraction.objects.filter(learning_session=learning_session,task=task,student=student.id).first()
+
+            if interaction and interaction.status=='completed':
+                task_info['status'] = 'completed'
+            else:
+                task_info['status'] = 'not-completed'
+
+            episode_tasks.append(task_info)
+
         
         metrics.append({
             'episode_id': episode.id,
@@ -84,6 +99,7 @@ def get_episode_metrics_dict(learning_session, student):
             'sequence_number': episode.sequence_number,
             'total_time_spent': time_spent,
             'tasks_completed': completed_count,
+            'episode_tasks':episode_tasks,
             'total_tasks': total_tasks,
             'episode_status':episode_status,
             'completion_percentage': round((completed_count / total_tasks * 100) if total_tasks else 0, 2)

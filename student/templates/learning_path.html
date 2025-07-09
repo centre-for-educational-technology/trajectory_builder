@@ -127,6 +127,98 @@
                 flex-direction: column;
             }
         }
+
+/* Custom Accordion Styles */
+.custom-accordion {
+    border: 1px solid #dee2e6;
+    border-radius: 8px;
+    overflow: hidden;
+    background-color: white;
+    margin-top: 1rem;
+}
+
+.custom-accordion-item {
+    border: none;
+}
+
+.custom-accordion-header {
+    margin-bottom: 0;
+}
+
+.custom-accordion-button {
+    width: 100%;
+    padding: 0.5rem 1rem;
+    font-size: 0.85rem;
+    text-align: left;
+    background-color: white;
+    border: none;
+    border-bottom: 1px solid #dee2e6;
+    display: flex;
+    align-items: center;
+}
+
+.custom-accordion-button:not(.collapsed) {
+    background-color: white;
+    box-shadow: none;
+}
+
+.custom-accordion-button:focus {
+    box-shadow: none;
+    border-color: #dee2e6;
+}
+
+.custom-accordion-collapse {
+    transition: all 0.3s ease;
+}
+
+.custom-accordion-body {
+    padding: 0;
+}
+
+/* Task List Styles */
+.custom-task-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+.custom-task-item {
+    padding: 0.5rem 1rem;
+    border-bottom: 1px solid #f0f0f0;
+    display: flex;
+    align-items: center;
+}
+
+.custom-task-item:last-child {
+    border-bottom: none;
+}
+
+.custom-task-link {
+    font-size: 0.85rem;
+    color: #333;
+    text-decoration: none;
+    display: flex;
+    align-items: center;
+    width: 100%;
+}
+
+.custom-badge {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+    margin-right: 0.75rem;
+    font-size: 0.65rem;
+    background-color: #f0f0f0;
+    color: #666;
+}
+
+.custom-badge.completed {
+    background-color: #28a745;
+    color: white;
+}
     </style>
 
       <!-- Main Content -->
@@ -273,6 +365,77 @@
                   <div class="path-node-container">
                       <div class="path-node {{progress.episode_status}}">
                           {% if progress.episode_status == "completed" %}
+                          <div class="node-tag bg-success">{{progress.episode_status}}</div>
+                          {% elif progress.episode_status == "in-progress" %}
+                          <div class="node-tag bg-primary">{{progress.episode_status}}</div>
+                          {% else %}
+                          <div class="node-tag bg-secondary">{{progress.episode_status}}</div>
+                          {% endif %}
+                          <div class="node-content">
+                              <h5 class="fw-bold">{{progress.episode_title}}</h5>
+                              <p class="text-muted small">{{progress.episode_description}}</p>
+                              <div class="d-flex text-muted small mt-2">
+                                  <span class="me-3"><i class="far fa-clock me-1"></i> {{progress.total_time_spent | format_duration}}</span>
+                                  <span><i class="far fa-check-circle me-1"></i> {{progress.tasks_completed}}/{{progress.total_tasks}} tasks</span>
+                              </div>
+                              
+                              <!-- Check for accordian working-->
+                              <div class="custom-accordion" id="tasksAccordion-{{progress.episode_id}}">
+                                <div class="custom-accordion-item">
+                                    <h2 class="custom-accordion-header" id="heading-{{progress.episode_id}}">
+                                        <button class="custom-accordion-button" type="button" 
+                                                data-bs-toggle="collapse" 
+                                                data-bs-target="#collapse-{{progress.episode_id}}" 
+                                                aria-expanded="false" 
+                                                aria-controls="collapse-{{progress.episode_id}}">
+                                            <i class="fas fa-tasks me-2"></i> Tasks ({{progress.total_tasks}})
+                                        </button>
+                                    </h2>
+                                    <div id="collapse-{{progress.episode_id}}" class="custom-accordion-collapse collapse show" 
+                                        aria-labelledby="heading-{{progress.episode_id}}" 
+                                        data-bs-parent="#tasksAccordion-{{progress.episode_id}}">
+                                        <div class="custom-accordion-body">
+                                            <ul class="custom-task-list">
+                                                {% for task in progress.episode_tasks %} 
+                                                <li class="custom-task-item">
+                                                    <a href="{% url 'learning_path_task' learning_session.id task.id%}" class="custom-task-link">
+                                                        {% if task.status == 'completed' %}
+                                                            <span class="custom-badge completed">
+                                                                <i class="fas fa-check"></i>
+                                                            </span>
+                                                        {% else %}
+                                                            <span class="custom-badge">
+                                                                <i class="fas fa-circle-notch"></i>
+                                                            </span>
+                                                        {% endif %}
+                                                        {{task.title}}
+                                                    </a>
+                                                </li>
+                                                {% endfor %}
+                                            </ul>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+
+
+
+                          </div>
+                      </div>
+                      {% if not forloop.last %}
+                      <div class="arrow">
+                          <div class="line"></div>
+                          <div class="point"></div>
+                      </div>
+                      {% endif %}
+                  </div>
+                  {% endfor %}
+                <!--
+                {% for progress in learning_path_progress %}
+                  <div class="path-node-container">
+                      <div class="path-node {{progress.episode_status}}">
+                          {% if progress.episode_status == "completed" %}
                             <div class="node-tag bg-success">{{progress.episode_status}}</div>
                           {% elif progress.episode_status == "in-progress" %}
                             <div class="node-tag bg-primary">{{progress.episode_status}}</div>
@@ -297,6 +460,7 @@
 
                   </div>
                   {% endfor %}
+                -->
                   <!--
                   <div class="path-node-container">
                       <div class="path-node skipped">
