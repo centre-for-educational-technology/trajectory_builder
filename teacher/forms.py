@@ -129,6 +129,9 @@ class LearningTaskForm(forms.ModelForm):
         help_texts = {
             'approximate_time': 'Enter duration in hours:minutes:seconds format (e.g., 1:30:00 for 1 hour 30 minutes)'
         }
+        labels = {
+            'difficulty_level':'Complexity level'
+        }
 
     def clean_approximate_time(self):
         time_str = self.cleaned_data['approximate_time']

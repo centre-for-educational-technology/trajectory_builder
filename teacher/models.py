@@ -21,8 +21,6 @@ class LearningPath(models.Model):
         (GYM, 'Gymnasium'),
     ]
     
-    
-    
     # Subject choices (can be expanded as needed)
     MATH = 'MA'
     SCIENCE = 'SC'
@@ -217,9 +215,11 @@ class LearningTask(models.Model):
     ]
     
     DIFFICULTY_CHOICES = [
-        ('LOW', 'Low'),
-        ('MED', 'Medium'),
-        ('HIGH', 'High'),
+        ('1', 1),
+        ('2', 2),
+        ('3', 3),
+        ('4', 4),
+        ('5', 5),
     ]
 
     episode = models.ForeignKey(Episode, on_delete=models.CASCADE, related_name='learning_tasks')
@@ -228,7 +228,7 @@ class LearningTask(models.Model):
     task_type = models.CharField(max_length=5, choices=TASK_TYPE_CHOICES)
     location = models.CharField(max_length=100)
     approximate_time = models.DurationField()
-    difficulty_level = models.CharField(max_length=4, choices=DIFFICULTY_CHOICES)
+    difficulty_level = models.CharField(max_length=4, choices=DIFFICULTY_CHOICES,null=True, blank=True)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
