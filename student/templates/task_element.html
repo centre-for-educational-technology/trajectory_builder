@@ -196,7 +196,51 @@
           
           <!-- Body -->
           <div class="card-body">
-              <!-- H5P element -->
+            <!-- Tab Navigation -->
+            <ul class="nav nav-tabs" id="resourceTabs" role="tablist">
+                {% for resource in task.resources.all %}
+                        <li class="nav-item" role="presentation">
+                            <button class="nav-link {% if forloop.first %}active{% endif %}" 
+                                    id="tab-{{ forloop.counter }}" 
+                                    data-bs-toggle="tab" 
+                                    data-bs-target="#resource-{{ forloop.counter }}" 
+                                    type="button" 
+                                    role="tab" 
+                                    aria-controls="resource-{{ forloop.counter }}"
+                                    aria-selected="{% if forloop.first %}true{% else %}false{% endif %}">
+                                Resource {{ forloop.counter }}
+                            </button>
+                        </li>
+                {% endfor %}
+            </ul>
+            
+            <!-- Tab Content -->
+            <div class="tab-content p-3 border border-top-0 rounded-bottom" id="resourceTabsContent">
+                {% for resource in task.resources.all %}
+                    
+                        <div class="tab-pane fade {% if forloop.first %}show active{% endif %}" 
+                            id="resource-{{ forloop.counter }}" 
+                            role="tabpanel" 
+                            aria-labelledby="tab-{{ forloop.counter }}">
+                            <form>{% csrf_token %}</form>
+                            {% if resource.h5p %}
+                            <div class="h5p-responsive-container">
+                                <iframe 
+                                    class="h5p-responsive-iframe"
+                                    src="{{ resource.h5p }}"
+                                    allowfullscreen
+                                    allow="geolocation *; microphone *; camera *; midi *; encrypted-media *"
+                                ></iframe>
+                                <script src="https://vara.h5p.ee/modules/contrib/h5p/vendor/h5p/h5p-core/js/h5p-resizer.js" charset="UTF-8"></script>
+                            </div>
+                            {% else %}
+                            <a href="resource.url" target="_blank">resource.title</a>
+                            {% endif %}
+                        </div>
+                    
+                {% endfor %}
+            </div>
+              <!-- H5P element 
               <form>{% csrf_token %}</form>
               <div class="h5p-container">
                 {% for resource in task.resources.all %}
@@ -212,6 +256,7 @@
                   {% endif %}
                 {% endfor %}
               </div>
+            -->
               
               <!-- Complete activity button 
               <div class="text-center mt-1">
@@ -236,8 +281,10 @@
                         <input type="hidden" name="session_id" value="{{learning_session.id}}"/>
   
                       </form>
-                      <a a class="btn btn-sm btn-outline-secondary me-2" onclick="document.getElementById('mark_as_complete_form').submit()" >Mark as completed</a>
-                      <a href="{% url 'learning_path' learning_session.id%}"class="btn btn-sm btn-primary">Return to Trajectory</a>
+                      {% if pre_task %} <a href="{% url 'learning_path_task' learning_session.id pre_task.id%}" class="btn btn-sm btn-primary"> <i class="fas fa-arrow-left"></i> Previous</a>{% endif %}
+                      <a class="btn btn-sm btn-success" onclick="document.getElementById('mark_as_complete_form').submit()" >Mark as completed</a>
+                      <a href="{% url 'learning_path' learning_session.id%}"class="btn btn-sm btn-secondary">Return to Trajectory</a>
+                      {% if next_task %}<a href="{% url 'learning_path_task' learning_session.id next_task.id%}" class="btn btn-sm btn-primary">Next <i class="fas fa-arrow-right"></i></a> {% endif %}
                   </div>
               </div>
           </div>

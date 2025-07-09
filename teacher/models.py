@@ -234,6 +234,48 @@ class LearningTask(models.Model):
 
     def __str__(self):
         return self.title
+    
+    def get_next_task(self):
+        """Returns the next task in the same episode, or None if this is the last task"""
+        next_tasks = LearningTask.objects.filter(
+            episode=self.episode,
+            id__gt=self.id
+        ).order_by('id')
+        
+        if next_tasks.exists():
+            return next_tasks.first()
+        
+        # If no next task in same episode, get first task of next episode
+        next_episode = Episode.objects.filter(
+            learning_path=self.episode.learning_path,
+            sequence_number__gt=self.episode.sequence_number
+        ).order_by('sequence_number').first()
+        
+        if next_episode:
+            return next_episode.learning_tasks.first()
+        
+        return None
+
+    def get_previous_task(self):
+        """Returns the previous task in the same episode, or None if this is the first task"""
+        prev_tasks = LearningTask.objects.filter(
+            episode=self.episode,
+            id__lt=self.id
+        ).order_by('-id')
+        
+        if prev_tasks.exists():
+            return prev_tasks.first()
+        
+        # If no previous task in same episode, get last task of previous episode
+        prev_episode = Episode.objects.filter(
+            learning_path=self.episode.learning_path,
+            sequence_number__lt=self.episode.sequence_number
+        ).order_by('-sequence_number').first()
+        
+        if prev_episode:
+            return prev_episode.learning_tasks.last()
+        
+        return None
 
 
 class Resource(models.Model):

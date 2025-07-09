@@ -237,12 +237,17 @@ class StudentDashboardView(LoginRequiredMixin, View):
         return render(request, 'dashboard.html', context)
 
 
+
+
 class TaskView(LoginRequiredMixin, View):
     def get(self, request, session_id, task_id):
         learning_session = get_object_or_404(LearningSession, id=session_id)
         learning_path = learning_session.learning_path
 
         current_task = LearningTask.objects.get(id=task_id)
+
+        next_task = current_task.get_next_task()
+        pre_task = current_task.get_previous_task()
 
         # Get or create interaction for current task
         interaction, created = TaskInteraction.objects.get_or_create(
@@ -251,15 +256,19 @@ class TaskView(LoginRequiredMixin, View):
             learning_session=learning_session
         )
 
-        if not created:
+        if not created and interaction.status!='completed':
             interaction.status = 'in_progress'
             interaction.save()
 
         context = {
             'task':current_task,
             'learning_session':learning_session,
-            'interaction':interaction
+            'interaction':interaction,
+            'next_task':next_task,
+            'pre_task':pre_task
         }
+
+        print('Contetx:',context)
 
         return render(request, 'task_element.html',context)
     
