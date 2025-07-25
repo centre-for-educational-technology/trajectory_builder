@@ -7,6 +7,11 @@ from django.db import models
 from django.contrib.auth.models import User
 
 
+import uuid
+from django.db import models
+from django.urls import reverse
+
+
 class LearningPath(models.Model):
     PRIMARY = 'PR'
     UPPER = 'UP'
@@ -290,16 +295,40 @@ class Resource(models.Model):
 
 class Enrollment(models.Model):
     student = models.ForeignKey(User, on_delete=models.CASCADE, related_name='enrollments')
-    learning_path = models.ForeignKey(LearningPath, on_delete=models.CASCADE, related_name='enrollments')
+    learning_session = models.ForeignKey(LearningSession, on_delete=models.CASCADE, related_name='enrollments')
     enrolled_on = models.DateTimeField(auto_now_add=True)
     completed = models.BooleanField(default=False)
     completion_date = models.DateTimeField(null=True, blank=True)
 
     class Meta:
-        unique_together = ('student', 'learning_path')
+        unique_together = ('student', 'learning_session')
 
     def __str__(self):
-        return f"{self.student.username} enrolled in {self.learning_path}"
+        return f"{self.student.username} enrolled in {self.learning_session}"
+
+
+class SessionRegistration(models.Model):
+    learning_session = models.OneToOneField(
+        LearningSession, 
+        on_delete=models.CASCADE,
+        related_name='registration'  
+    )
+    code = models.UUIDField(default=uuid.uuid4, editable=False, unique=True)
+    created_by = models.ForeignKey(
+        User,
+        on_delete=models.CASCADE,
+        related_name='created_registrations'
+    )
+    created_at = models.DateTimeField(auto_now_add=True)
+    is_active = models.BooleanField(default=True)
+    max_uses = models.PositiveIntegerField(default=0)  # 0 for unlimited
+    uses = models.PositiveIntegerField(default=0)
+
+    def __str__(self):
+        return f"Registration for {self.learning_session} (Code: {self.code})"
+
+    def get_absolute_url(self):
+        return reverse('session-register', kwargs={'code': self.code})
 
 
 admin.site.register(Episode)
@@ -307,3 +336,5 @@ admin.site.register(LearningTask)
 admin.site.register(LearningPath)
 admin.site.register(Resource)
 admin.site.register(Enrollment)
+admin.site.register(SessionRegistration)
+admin.site.register(LearningSession)

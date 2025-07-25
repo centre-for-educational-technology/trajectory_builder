@@ -54,7 +54,7 @@
   </script>
 
   <div class="container-fluid m-0 p-0 bg-white">
-        <!--Any flash messages pop up in any page because this is the base template-->
+        <!--Any flash messages pop up in any page because this is the base template
         {% if messages %}
           <div class="alert alert-dismissible fade show" role="alert">
             {% for message in messages %}
@@ -63,6 +63,19 @@
             <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
           </div>
         {% endif %}
+        -->
+
+
+        {% if messages %}
+        {% for message in messages %}
+          <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
+            {{ message }}
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+          </div>
+          {% endfor %}
+        {% endif %}
+
+
 
         <!-- Content to populate in Django templates -->
         {% block content %}{% endblock %}

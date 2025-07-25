@@ -1,0 +1,505 @@
+{% extends 'base_form.html' %}
+
+{% block content %}
+
+<style>
+
+    .metrics-container {
+        display: flex;
+        gap: 20px;
+        margin-bottom: 30px;
+        flex-wrap: wrap;
+    }
+    
+    .fancy-metric-box {
+        flex: 1;
+        min-width: 220px;
+        background: white;
+        border-radius: 16px;
+        padding: 20px;
+        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+        display: flex;
+        align-items: flex-start;
+        gap: 16px;
+        transition: all 0.3s ease;
+        border: 1px solid rgba(0, 0, 0, 0.05);
+    }
+    
+    .fancy-metric-box:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 8px 25px rgba(0, 0, 0, 0.12);
+    }
+    
+    .metric-icon {
+        width: 48px;
+        height: 48px;
+        border-radius: 12px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        flex-shrink: 0;
+    }
+    
+    .students-metric .metric-icon {
+        background-color: rgba(101, 116, 205, 0.1);
+        color: #6574cd;
+    }
+    
+    .completion-metric .metric-icon {
+        background-color: rgba(102, 210, 165, 0.1);
+        color: #66d2a5;
+    }
+
+    .django-toggle-switch-primary input:checked + .django-toggle-switch-slider, input:checked + .django-toggle-switch-slider {
+  background-color: #66d2a5;
+}
+    
+    .episodes-metric .metric-icon {
+        background-color: rgba(255, 159, 67, 0.1);
+        color: #ff9f43;
+    }
+    
+    .metric-icon svg {
+        width: 24px;
+        height: 24px;
+    }
+    
+    .metric-content {
+        flex: 1;
+        min-width: 0;
+    }
+    
+    .metric-value {
+        font-size: 28px;
+        font-weight: 700;
+        margin-bottom: 4px;
+        color: #2c3e50;
+        line-height: 1.2;
+    }
+    
+    .metric-value small {
+        font-size: 16px;
+        color: #7f8c8d;
+        font-weight: 500;
+    }
+    
+    .metric-label {
+        font-size: 14px;
+        color: #7f8c8d;
+        font-weight: 500;
+        margin-bottom: 8px;
+    }
+    
+    .metric-trend {
+        font-size: 12px;
+        font-weight: 600;
+        display: flex;
+        align-items: center;
+        gap: 4px;
+        color: #7f8c8d;
+    }
+    
+
+    @media (max-width: 768px) {
+        .metrics-container {
+            flex-direction: column;
+        }
+        
+        .fancy-metric-box {
+            width: 100%;
+        }
+    }
+
+
+        /* Custom CSS */
+        .tasks-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(30px, 1fr));
+            gap: 5px;
+            margin-top: 10px;
+        }
+        
+        .task-box {
+            width: 30px;
+            height: 30px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 3px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            font-size: 0.7rem;
+        }
+        
+        .student-task-box {
+            width: 25px;
+            height: 25px;
+            border-radius: 3px;
+            margin: 0 auto;
+        }
+        
+        .episode-tasks {
+            background-color: #76b7b2; /* Blue for episode 1 */
+        }
+        
+        .completed {
+            opacity: 1;
+        }
+        
+        .not-completed {
+            opacity: 0.3;
+        }
+
+        .in_progress {
+            opacity: 0.3;
+        }
+        
+        .episode-container {
+            padding: 10px;
+            margin-bottom: 20px;
+            border-left: 4px solid #ddd;
+        }
+        
+        .episode-title {
+            color: #343a40;
+            font-size: 1.1rem;
+        }
+        
+        /* Container styling */
+.table-container {
+    width: 100%;
+    overflow-x: auto; /* Enable horizontal scrolling */
+    -webkit-overflow-scrolling: touch; /* Smooth scrolling on mobile */
+}
+
+/* Table styling */
+.table {
+    width: auto; /* Let table expand to fit content */
+    min-width: 100%; /* Ensure table is at least as wide as container */
+    white-space: nowrap; /* Prevent text wrapping */
+}
+
+/* Fixed student name column */
+.student-name-col {
+    position: sticky;
+    left: 0;
+    background-color: white; /* Match your background */
+    z-index: 1; /* Ensure it stays above scrolled content */
+    min-width: 150px; /* Adjust as needed */
+}
+
+/* Task header styling */
+.task-header {
+    min-width: 30px; /* Adjust based on your needs */
+    text-align: center;
+}
+
+/* Task box styling */
+.student-task-box {
+    width: 20px;
+    height: 20px;
+    margin: 0 auto;
+    border: 1px solid #ddd;
+}
+
+/* Status colors - customize as needed */
+.student-task-box.completed {
+    background-color: #28a745; /* Green for completed */
+}
+.student-task-box.incomplete {
+    background-color: #dc3545; /* Red for incomplete */
+}
+.student-task-box.in-progress {
+    background-color: #ffc107; /* Yellow for in progress */
+}
+
+
+.bg-purple{
+  background-color: rgba(191, 170, 241, 0.1); /* 10% opacity */
+
+}
+
+.bg-green{
+  background-color: rgba(170, 233, 212, 0.1);
+}
+.bg-indigo{
+  background-color: rgba(#b3b4e7, 0.1);
+}
+
+.text-indigo { color: #6366f1; }
+.text-indigo-dark { color: #3a31e8; }
+
+.rounded-md
+{ 
+  border-radius: .5rem;
+}
+
+.rounded-xl {
+border-radius: .75rem;}
+
+.border-gray {
+  border-color: gray;
+  border-width:1px;
+}
+
+.text-purple {
+  color: #8b5cf6;
+}
+
+.text-purple-dark {
+  color: #570fd4;
+}
+
+/* Text colors */
+.text-green {
+  color: #10b981;
+}
+
+
+.text-green-dark {
+  color: #05885e;
+}
+</style>
+    <div class="min-vh-100 container">
+        <!-- Header Section -->
+        <div class="dashboard-header mb-4 pt-4 p-2">
+            <h3>Science Class - Grade 5</h3>
+            <p class="text-secondary">Exploring Ecosystems Learning Path</p> 
+            <br/>
+            <div>
+                Registration link: 
+                    
+                        <input type="text" id="registration-link" 
+                            value="{{ request.scheme }}://{{ request.get_host }}{% url 'session_register' registration.code %}" 
+                            class="form-control" readonly style="width: 300px;" hidden>
+                    <div class="d-flex align-items-center gap-2">
+                        <span class=" small" style="max-width: 700px;">
+                            {{ request.scheme }}://{{ request.get_host }}{% url 'session_register' registration.code %}
+                        </span>
+                        <i class="far fa-copy text-muted ms-2 clipboard-icon small"
+                        style="cursor: pointer;"
+                        data-url="{{ request.scheme }}://{{ request.get_host }}{% url 'session_register' registration.code %}"
+                        data-bs-toggle="tooltip"
+                        data-bs-placement="top"
+                        title="Copy to clipboard" id="copy-button"></i>
+                    </div>
+            </div>
+            
+            <form method="post">
+                {% csrf_token %}
+                {{form.id}}
+                <div class="mb-4">
+                    
+                    <div class="mt-2">
+                       Registration status: <p class="small">{{ form.registration }}
+                    </div>
+                </div>
+
+            </form>
+        </div>
+
+        <div class="metrics-container">
+        <!-- Enrolled Students Box -->
+        <div class="fancy-metric-box students-metric">
+            <div class="metric-icon">
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
+                    <circle cx="9" cy="7" r="4"></circle>
+                    <path d="M23 21v-2a4 4 0 0 0-3-3.87"></path>
+                    <path d="M16 3.13a4 4 0 0 1 0 7.75"></path>
+                </svg>
+            </div>
+            <div class="metric-content">
+                <div class="metric-value">{{enrollments}}</div>
+                <div class="metric-label">Enrolled Students</div>
+                
+            </div>
+        </div>
+
+    <!-- Average Completion Box -->
+    <div class="fancy-metric-box completion-metric">
+        <div class="metric-icon">
+            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
+                <polyline points="22 4 12 14.01 9 11.01"></polyline>
+            </svg>
+        </div>
+        <div class="metric-content">
+            <div class="metric-value">{{avg_task_completed}}%</div>
+            <div class="metric-label">Average Task Completion</div>
+           
+        </div>
+    </div>
+
+    <!-- Episodes Completed Box -->
+    <div class="fancy-metric-box episodes-metric">
+        <div class="metric-icon">
+            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <circle cx="12" cy="12" r="10"></circle>
+                <polyline points="12 6 12 12 16 14"></polyline>
+            </svg>
+        </div>
+        <div class="metric-content">
+            <div class="metric-value">{{avg_episode_completed}}<small>/{{total_episodes}}</small></div>
+            <div class="metric-label">Average Episodes Completed</div>
+            
+        </div>
+    </div>
+</div>
+
+
+
+        <!-- Student Progress Grid -->
+        <div class="bg-white rounded-md  shadow-sm border p-3">        
+            <h4>Student Task Completion</h4>
+            <p class="mb-0">Each column represents a task, colored by episode. Green boxes indicate completion.</p>
+            
+            <div class="p-2 rounded-md shadow-sm mt-3">
+                <div class="table-container">
+                    <table class="table table-sm mt-3  mb-0">
+                        <thead>
+                            <tr>
+                                <th class="student-name-col">Student</th>
+                                {% for col in header %}
+                                    <th class="task-header">{{col.label}}</th>
+                                {% endfor %}
+                                
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <!-- Student 1 -->
+                            <tr>
+                                {% for student_record in analytics %}
+                                <td class="student-name-col">{{student_record.name}}</td>
+                                <!-- Episode 1 Tasks -->
+                                    {% for episode in student_record.episodes %}
+                                        {% for task in episode.tasks %}
+                                            <td><div class="student-task-box episode-tasks {{task.status}}"></div></td>
+                                        {% endfor %}
+                                    {% endfor %}
+                                {% endfor %}
+                            </tr>
+                            
+                            
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+        {% if false %}
+        <!-- Episode Summary Section -->
+        <div class="bg-white rounded-md  shadow-sm border p-3 mt-3">
+            
+            <h4>Episode summary</h4>
+                <!-- Episode 1 -->
+                <div class="episode-container">
+                    <h4 class="episode-title">Episode 1: Introduction to Ecosystems</h4>
+                    <p class="episode-description">Learn the basic components of ecosystems and how they interact.</p>
+                    <div class="tasks-grid">
+                        <div class="task-box episode-tasks completed" title="E1-T1: Ecosystem Basics">1</div>
+                        <div class="task-box episode-tasks completed" title="E1-T2: Food Chains">2</div>
+                        <div class="task-box episode-tasks completed" title="E1-T3: Habitat Study">3</div>
+                        <div class="task-box episode-tasks completed" title="E1-T4: Group Discussion">4</div>
+                        <div class="task-box episode-tasks not-completed" title="E1-T5: Reflection Journal">5</div>
+                    </div>
+                </div>
+                
+                <!-- Episode 2 -->
+                <div class="episode-container">
+                    <h4 class="episode-title">Episode 2: Biodiversity</h4>
+                    <p class="episode-description">Explore the variety of life in different ecosystems.</p>
+                    <div class="tasks-grid">
+                        <div class="task-box episode-tasks completed" title="E2-T1: Species Research">1</div>
+                        <div class="task-box episode-tasks completed" title="E2-T2: Field Observation">2</div>
+                        <div class="task-box episode-tasks not-completed" title="E2-T3: Case Study">3</div>
+                        <div class="task-box episode-tasks not-completed" title="E2-T4: Presentation">4</div>
+                    </div>
+                </div>
+                
+                <!-- Episode 3 -->
+                <div class="episode-container">
+                    <h4 class="episode-title">Episode 3: Human Impact</h4>
+                    <p class="episode-description">Understand how human activities affect ecosystems.</p>
+                    <div class="tasks-grid">
+                        <div class="task-box episode-tasks completed" title="E3-T1: Pollution Effects">1</div>
+                        <div class="task-box episode-tasks not-completed" title="E3-T2: Conservation Methods">2</div>
+                        <div class="task-box episode-tasks not-completed" title="E3-T3: Debate Prep">3</div>
+                        <div class="task-box episode-tasks not-completed" title="E3-T4: Class Debate">4</div>
+                        <div class="task-box episode-tasks not-completed" title="E3-T5: Action Plan">5</div>
+                    </div>
+                </div>
+                
+                <!-- Episode 4 -->
+                <div class="episode-container">
+                    <h4 class="episode-title">Episode 4: Ecosystem Restoration</h4>
+                    <p class="episode-description">Learn about efforts to restore damaged ecosystems.</p>
+                    <div class="tasks-grid">
+                        <div class="task-box episode-tasks not-completed" title="E4-T1: Success Stories">1</div>
+                        <div class="task-box episode-tasks not-completed" title="E4-T2: Local Project">2</div>
+                        <div class="task-box episode-tasks not-completed" title="E4-T3: Final Report">3</div>
+                    </div>
+                </div>
+            
+        </div>
+        <div clas="mt-4"></div>
+        {% endif %}
+    </div>
+    
+        <!-- Include clipboard.js library -->
+        <script src="https://cdn.jsdelivr.net/npm/clipboard@2.0.8/dist/clipboard.min.js"></script>
+        <script>
+            
+document.addEventListener('DOMContentLoaded', function() {
+
+    document.getElementById('{{ form.registration.id_for_label }}').addEventListener('change', function() {
+         this.form.submit();
+        });
+    // Initialize tooltips
+    var tooltipTriggerList = [].slice.call(document.querySelectorAll('.clipboard-icon'))
+    var tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
+        return new bootstrap.Tooltip(tooltipTriggerEl)
+    })
+
+       // Initialize tooltips
+$('.clipboard-icon').tooltip(); 
+
+// Handle click + copy + tooltip update
+$('.clipboard-icon').on('click', function() {
+    const url = $(this).data('url');
+    const $icon = $(this);
+    
+    navigator.clipboard.writeText(url).then(() => {
+        // Update tooltip text
+        $icon
+            .attr('title', 'Copied!')
+            .attr('data-bs-original-title', 'Copied!') // Bootstrap 5 stores it here
+
+
+         // 2. Get the tooltip instance
+        const tooltip = $icon.data('bs.tooltip');
+        
+        // 3. Force update and show immediately
+        if (tooltip) {
+            tooltip._popper?.update(); // Update position (if shown)
+            $icon.tooltip('show'); // Force re-show
+        }
+        
+        // Optional: Revert to original text after 2 seconds
+        setTimeout(() => {
+            $icon
+                .attr('title', 'Click to copy')
+                .attr('data-bs-original-title', 'Click to copy')
+                .tooltip('hide')
+        }, 2000);
+        
+    }).catch(err => {
+        console.error('Copy failed:', err);
+        $icon
+            .attr('title', 'Error copying!')
+            .tooltip('show');
+    });
+});
+})
+    </script>
+{% endblock %}

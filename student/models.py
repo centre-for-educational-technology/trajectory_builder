@@ -94,6 +94,14 @@ class TaskInteraction(models.Model):
         ).select_related('task__episode')
     
     @classmethod
+    def get_student_episode_interactions(cls, student_id, episode_id):
+        """Get all interactions for a student in a specific session"""
+        return cls.objects.filter(
+            student_id=student_id,
+            task__episode=episode_id
+        ).select_related('task__episode')
+    
+    @classmethod
     def get_stats_for_student_session(cls, student_id, learning_session_id):
         """Get enhanced statistics with time tracking"""
         interactions = cls.objects.filter(

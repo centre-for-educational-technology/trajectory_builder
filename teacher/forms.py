@@ -1,6 +1,7 @@
 from django import forms
-from .models import LearningPath, Episode, LearningTask, Resource, LearningSession
+from .models import LearningPath, Episode, LearningTask, Resource, LearningSession, SessionRegistration
 from datetime import timedelta
+from django_toggle_switch_widget.widgets import DjangoToggleSwitchWidget
 
 class LearningPathForm(forms.ModelForm):
     class Meta:
@@ -96,7 +97,6 @@ class EpisodeForm(forms.ModelForm):
         }
 
 
-
 class LearningTaskForm(forms.ModelForm):
     class Meta:
         model = LearningTask
@@ -149,6 +149,7 @@ class LearningTaskForm(forms.ModelForm):
         except (ValueError, AttributeError):
             raise forms.ValidationError("Enter time in HH:MM:SS or '1h 30m' format")
 
+
 class ResourceForm(forms.ModelForm):
     class Meta:
         model = Resource
@@ -161,3 +162,17 @@ class ResourceForm(forms.ModelForm):
         }
 
 
+class RegistrationToggleForm(forms.Form):
+    id = forms.IntegerField(
+        widget=forms.HiddenInput(),
+        required=True
+    )
+    
+    registration = forms.BooleanField(
+        required=False,
+        widget=DjangoToggleSwitchWidget(
+            round=True,
+            klass="django-toggle-switch-primary"
+        ),
+        label="Registration Status"
+    )

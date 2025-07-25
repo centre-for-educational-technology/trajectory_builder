@@ -4,7 +4,7 @@ from .views import (
     EpisodeCreateView, EpisodeUpdateView, EpisodeDeleteView,
     LearningTaskCreateView, LearningTaskUpdateView, LearningTaskDeleteView,
     LearningPathConfigView, ResourceUpdateView, LearningSessionCreateView, LearningSessionUpdateView,
-    LearningSessionDeleteView, LearningSessionListView
+    LearningSessionDeleteView, LearningSessionListView, LearningSessionDashboardView, LearningSessionRegisterView
 )
 from .api import (
         EpisodeViewSet, 
@@ -48,6 +48,8 @@ urlpatterns = [
     path('session/update/<int:pk>/', LearningSessionUpdateView.as_view(), name='session_update'),
     path('session/list/', LearningSessionListView.as_view(), name='session_list'),
     path('session/delete/<int:pk>/', LearningSessionDeleteView.as_view(), name='session_delete'),
+    path('session/registration/<str:code>/', LearningSessionRegisterView.as_view(), name='session_register'),
+    path('session/dashboard/<int:pk>/', LearningSessionDashboardView.as_view(), name='session_dashboard'),
 
     # API endpoints
     path('', include(router.urls)),

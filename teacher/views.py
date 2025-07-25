@@ -10,17 +10,117 @@ from django.forms import modelformset_factory
 from django.contrib.auth.mixins import LoginRequiredMixin
 from .models import Episode, LearningTask, Resource, LearningSession
 import requests
+from django.contrib.auth.models import User
+from django.contrib import messages
 
 from django.conf import settings
-
+from django.db.models.signals import post_save
+from django.dispatch import receiver
+from django.core.exceptions import ValidationError
 from django.http import JsonResponse
 from django.urls import reverse
 from django.shortcuts import redirect
 from django.forms import modelformset_factory
 from django.views.generic.edit import FormView
-from .forms import LearningPathForm, ResourceForm, EpisodeForm, LearningTaskForm, LearningSessionForm
-from .models import LearningPath, Episode, LearningTask, Resource
+from .forms import LearningPathForm, ResourceForm, EpisodeForm, LearningTaskForm, LearningSessionForm, RegistrationToggleForm
+from .models import LearningPath, Episode, LearningTask, Resource, SessionRegistration, Enrollment
+import uuid
 
+from student.models import TaskInteraction
+
+@receiver(post_save, sender=LearningSession)
+def create_session_registration(sender, instance, created, **kwargs):
+    """
+    Automatically creates a registration link when a new LearningSession is created
+    """
+    if created:
+        SessionRegistration.objects.create(
+            learning_session=instance,
+            created_by=instance.created_by,
+            code=uuid.uuid4(),
+            is_active=True
+        )
+
+
+def get_session_analytics(learning_session):
+    """
+    Get information on students' progress on learning path
+
+    Args:
+    ----
+        learning_session (LearningSession): Object of LearningSession model
+
+    Returns:
+    ----
+        dict: Dictionary containing task completion status for each student
+    """
+    student_analytics = []
+    
+    learning_session_object = LearningSession.objects.select_related('learning_path').get(id=learning_session)
+
+    # All enrolled students
+    enrolled_students = Enrollment.objects.filter(learning_session=learning_session).select_related('student')
+
+    # @todo: remove when enrollement workflow is added
+    enrolled_students = User.objects.all()
+
+    total_students = len(enrolled_students)
+
+    episodes = Episode.objects.filter(learning_path = learning_session_object.learning_path).order_by('sequence_number')
+
+    total_tasks = learning_session_object.learning_path.get_total_tasks()
+
+    task_completed_all_students = 0
+
+    episode_completed = 0
+    total_episodes = len(learning_session_object.learning_path.episodes.all())
+
+    header = []
+    # Labeling info
+    for ep_id,episode in enumerate(episodes):
+        ep_id += 1
+        tasks = LearningTask.objects.filter(episode=episode).order_by('id')
+
+        for ts_id, task in enumerate(tasks):
+            ts_id += 1
+            header.append({'label':f'E{ep_id}-T{ts_id}', 'episode':episode, 'task':task})
+
+    for student in enrolled_students:
+        episode_analytics = []
+        task_seq_new = 1
+        for episode in episodes:
+            task_analytics = {}
+            tasks = LearningTask.objects.filter(episode=episode).order_by('id').all()
+
+            episode_total_tasks = len(tasks)
+            episode_task_completed = 0
+            
+            for seq, task in enumerate(tasks):
+                task_analytics[task.id]='not-completed'
+
+            interactions = TaskInteraction.get_student_episode_interactions(student,episode)
+
+            for interaction in interactions:
+                task_analytics[interaction.task.id] = interaction.status
+                if interaction.status == 'completed':
+                    task_completed_all_students += 1
+                    episode_task_completed += 1
+            
+            print(f'Episode total:{episode_total_tasks} Completed:{episode_task_completed}')
+
+            if episode_total_tasks == episode_task_completed:
+                episode_completed += 1
+            
+            # Transforming dictionary into list
+            task_records = [{"id": task_id, "status": status} for task_id, status in task_analytics.items()]
+            episode_analytics.append({'episode':episode,'tasks':task_records})
+        student_analytics.append({'id':student.id,'name':student.username, 'episodes':episode_analytics})
+    avg_completed_episode_per_student = 0 if total_students == 0 else episode_completed/total_students
+    avg_completed_tasks_per_student = 0 if ((total_students == 0) or (total_tasks == 0))  else (100 * task_completed_all_students)/(total_students*total_tasks)
+
+    print('Episode completed:',episode_completed)
+
+    return header,student_analytics,int(avg_completed_tasks_per_student),int(avg_completed_episode_per_student),total_episodes
 
 class H5PProxySearchView(View):
     def get(self, request):
@@ -56,6 +156,7 @@ class LearningPathCreateView(LoginRequiredMixin, CreateView):
     def get_success_url(self):
         return reverse('learning_path_config',kwargs={'pk':self.object.id})
 
+
 class LearningSessionCreateView(LoginRequiredMixin, CreateView):
     model = LearningSession
     form_class = LearningSessionForm
@@ -89,9 +190,44 @@ class LearningSessionUpdateView(LoginRequiredMixin, UpdateView):
     def get_success_url(self):
         """Redirect to the session detail page or configuration page"""
         return reverse('session_list')
+    
+
+class LearningSessionDashboardView(LoginRequiredMixin, View):
+    template_name = 'session_dashboard.html'
+    
+    def get(self, request, *args, **kwargs):
+        pk = kwargs['pk']
+        header, analytics,avg_task, avg_episode,total_episodes = get_session_analytics(pk)
+        session = LearningSession.objects.filter(id=pk).first()
+        enrollments = Enrollment.objects.filter(learning_session=session).all()
+        obj = SessionRegistration.objects.filter(learning_session=session).first()
+        form = RegistrationToggleForm(initial={
+            'id': obj.id,
+            'registration': obj.is_active
+        })
+        return render(request, self.template_name, 
+                      {'form': form,
+                        'analytics':analytics,
+                        'header':header, 
+                        'enrollments':len(enrollments),
+                        'registration':obj,
+                        'avg_task_completed':avg_task,
+                        'avg_episode_completed':avg_episode,
+                        'total_episodes':total_episodes})
+    
+    def post(self, request, *args, **kwargs):
+        form = RegistrationToggleForm(request.POST)
+        if form.is_valid():
+            obj = SessionRegistration.objects.get(pk=form.cleaned_data['id'])
+            obj.is_active = form.cleaned_data['registration']
+            obj.save()
+            
+            status = "enabled" if form.cleaned_data['registration'] else "disabled"
+            messages.success(request, f"Registration {status} successfully!")
+            return redirect('session_dashboard',pk=obj.learning_session.id)
 
 
-class LearningSessionListView(ListView):
+class LearningSessionListView(LoginRequiredMixin,ListView):
     model = LearningSession
     template_name = 'session_list.html'
     context_object_name = 'learning_sessions'
@@ -100,7 +236,23 @@ class LearningSessionListView(ListView):
         if self.request.user.is_authenticated:
             return LearningSession.objects.filter(created_by=self.request.user)
         return LearningSession.objects.none()
-    
+
+
+class LearningSessionRegisterView(LoginRequiredMixin,View):
+
+    template_name = 'session_registration.html'
+    def get(self,request,code):
+        try: 
+            registration = SessionRegistration.objects.filter(code=code).first()
+
+            if registration and registration.is_active:
+                Enrollment.objects.create(learning_session=registration.learning_session,student=request.user)
+                return render(request,self.template_name,{'registration_open':True, 'invalid':False})
+            else:
+                return render(request,self.template_name,{'registration_open':False, 'invalid':False})
+        except ValidationError:
+            return render(request,self.template_name,{'invalid':True})
+
 
 class LearningSessionDeleteView(LoginRequiredMixin, DeleteView):
     model = LearningSession
@@ -111,7 +263,6 @@ class LearningSessionDeleteView(LoginRequiredMixin, DeleteView):
         return super().get_queryset().filter(owner=self.request.user)
  
 
-
 class LearningPathDeleteView(LoginRequiredMixin, DeleteView):
     model = LearningPath
     template_name = 'learningpath_confirm_delete.html'
@@ -120,7 +271,6 @@ class LearningPathDeleteView(LoginRequiredMixin, DeleteView):
     def get_queryset(self):
         return super().get_queryset().filter(owner=self.request.user)
  
-
 ##########################################
 class LearningPathConfigView(LoginRequiredMixin, View):
     template_name = 'trajectory_config_form.html'
@@ -154,6 +304,7 @@ class LearningPathUpdateView(LoginRequiredMixin, UpdateView):
     def get_success_url(self):
         return reverse('learning_path_config',kwargs={'pk':self.object.id})
 
+
 class LearningPathListView(ListView):
     model = LearningPath
     template_name = 'trajectory_list.html'
@@ -164,6 +315,7 @@ class LearningPathListView(ListView):
             return LearningPath.objects.filter(owner=self.request.user)
         return LearningPath.objects.none()
 
+
 # Add this class to your existing views
 class LearningPathDeleteView(LoginRequiredMixin, DeleteView):
     model = LearningPath
@@ -172,7 +324,6 @@ class LearningPathDeleteView(LoginRequiredMixin, DeleteView):
     
     def get_queryset(self):
         return super().get_queryset().filter(owner=self.request.user)
-
 
 
 class EpisodeCreateView(LoginRequiredMixin, CreateView):
@@ -187,6 +338,7 @@ class EpisodeCreateView(LoginRequiredMixin, CreateView):
     def get_success_url(self):
         return reverse_lazy('learning_path_detail', kwargs={'pk': self.kwargs['learning_path_id']})
 
+
 class EpisodeUpdateView(LoginRequiredMixin, UpdateView):
     model = Episode
     fields = ['title', 'description', 'knowbits', 'skillbits']
@@ -195,12 +347,14 @@ class EpisodeUpdateView(LoginRequiredMixin, UpdateView):
     def get_success_url(self):
         return reverse_lazy('learning_path_config', kwargs={'pk': self.object.learning_path.id})
 
+
 class EpisodeDeleteView(LoginRequiredMixin, DeleteView):
     model = Episode
     template_name = 'episode_confirm_delete.html'
     
     def get_success_url(self):
         return reverse_lazy('learning_path_detail', kwargs={'pk': self.object.learning_path.id})
+
 
 class LearningTaskCreateView(LoginRequiredMixin, CreateView):
     model = LearningTask
@@ -214,6 +368,7 @@ class LearningTaskCreateView(LoginRequiredMixin, CreateView):
     def get_success_url(self):
         return reverse_lazy('episode_detail', kwargs={'pk': self.kwargs['episode_id']})
 
+
 class LearningTaskUpdateView(LoginRequiredMixin, UpdateView):
     model = LearningTask
     fields = ['title', 'description', 'task_type', 'location', 'approximate_time', 'difficulty_level']
@@ -222,12 +377,14 @@ class LearningTaskUpdateView(LoginRequiredMixin, UpdateView):
     def get_success_url(self):
         return reverse_lazy('learning_path_list')
 
+
 class LearningTaskDeleteView(LoginRequiredMixin, DeleteView):
     model = LearningTask
     template_name = 'learningtask_confirm_delete.html'
     
     def get_success_url(self):
         return reverse_lazy('episode_detail', kwargs={'pk': self.object.episode.id})
+
 
 class ResourceUpdateView(LoginRequiredMixin, UpdateView):
     model = Resource
@@ -236,3 +393,5 @@ class ResourceUpdateView(LoginRequiredMixin, UpdateView):
     
     def get_success_url(self):
         return reverse_lazy('episode_detail', kwargs={'pk': self.object.episode.id})
+    
+
