@@ -1,4 +1,5 @@
 {% extends 'student_base.html' %}
+{% load i18n %}
 {% load duration_filter %}
 
 {% block content %}
@@ -228,7 +229,7 @@
         <!-- Gradient Box -->
         <div class="bg-white rounded-xl border-gray shadow p-4 mb-4">
           <!-- Title -->
-          <p class="title-two">Session Progress</p>
+          <p class="title-two">{% trans 'Session Progress'%}</p>
 
           <!-- Stats Boxes Row -->
           <div class="row p-4">
@@ -238,7 +239,7 @@
                 <div class="rounded-md me-2 p-3 shadow-sm" style="background-color: #e0e5f6;">
                   <div class="d-flex align-items-center mb-2">
                       <i class="fas fa-check text-indigo-dark me-2"></i>
-                      <span class="ml-2 font-weight-bold text-dark" style="font-weight: 600;">Completion</span>
+                      <span class="ml-2 font-weight-bold text-dark" style="font-weight: 600;">{% trans 'Completion'%}</span>
                   </div>
                   <div class="title-two text-indigo-dark mb-1" style="font-weight: 800; font-size: 1.9rem;">{{completion_percentage |  stringformat:"d"}}%</div>
                   <div class="small text-muted">{{completed_tasks}} of {{total_tasks}} activities</div>
@@ -249,7 +250,7 @@
                 <div class="rounded-md p-3 me-2 shadow-sm " style="background-color: #f3e8ff;">
                     <div class="d-flex align-items-center mb-2">
                       <i class="fas fa-clock text-purple me-2"></i>  <!-- Changed mr-2 to me-2 -->
-                      <span class="font-weight-bold text-dark" style="font-weight: 600;">Time Investment</span>
+                      <span class="font-weight-bold text-dark" style="font-weight: 600;">{% trans 'Time Investment'%}</span>
                   </div>
                     <div class="title-two text-purple-dark mb-1" style="font-weight: 800; font-size: 1.9rem;" style="font-weight: 600;">{{total_time_spent | format_duration}} </div>
                     <div class="small text-muted">{{remaining_time | format_duration }} remaining</div>
@@ -261,14 +262,14 @@
                 <div class="rounded-md p-3 shadow-sm " style="background-color: #dcfce7;">
                     <div class="d-flex align-items-center mb-2">
                         <i class="fas fa-bullseye text-green me-2"></i>
-                        <span class="font-weight-bold text-dark" style="font-weight: 600;">Progress Rate</span>
+                        <span class="font-weight-bold text-dark" style="font-weight: 600;">{% trans 'Progress Rate'%}</span>
                     </div>
                     <div class="title-two text-green-dark mb-1" style="font-weight: 800; font-size: 1.9rem;">Good</div>
-                    <div class="small text-muted">On Track to complete on time</div>
+                    <div class="small text-muted">{% trans 'On Track to complete on time'%}</div>
                 </div>
               </div>
             </div>
-            <h6 class="font-weight-600 mb-3">Activity Breakdown</h6>
+            <h6 class="font-weight-600 mb-3">{% trans 'Activity Breakdown'%}</h6>
     
           <!-- Activity Boxes Row -->
           <div class="d-flex flex-wrap p-4 ">
@@ -276,7 +277,7 @@
               <div class="rounded-md bg-light shadow-sm  p-3 d-flex align-items-center flex-grow-1 me-2" style="min-width: 180px;">
                   <i class="fas fa-users text-primary me-4 fs-5"></i>
                   <div>
-                      <small class="text-muted d-block">Group</small>
+                      <small class="text-muted d-block">{% trans 'Group'%}</small>
                       <span class="font-weight-bold" style="font-weight: 700;">{{task_counts.GRP}} activities</span>
                   </div>
               </div>
@@ -285,7 +286,7 @@
               <div class="rounded-md p-3 bg-light shadow-sm  d-flex align-items-center flex-grow-1 me-2" style="min-width: 180px;">
                   <i class="fas fa-user-graduate text-info me-4 fs-5"></i>
                   <div>
-                      <small class="text-muted d-block">Individual</small>
+                      <small class="text-muted d-block">{% trans 'Individual'%}</small>
                       <span class="font-weight-bold" style="font-weight: 700;">{{task_counts.IND}}  activities</span>
                   </div>
               </div>
@@ -294,7 +295,7 @@
               <div class="rounded-md p-3 bg-light shadow-sm d-flex align-items-center flex-grow-1 me-2" style="min-width: 180px;">
                   <i class="fas  fa-chalkboard text-warning me-4 fs-5"></i>
                   <div>
-                      <small class="text-muted d-block">Whole classroom</small>
+                      <small class="text-muted d-block">{% trans 'Whole classroom'%}</small>
                       <span class="font-weight-bold" style="font-weight: 700;">{{task_counts.WHOLE}} activities</span>
                   </div>
               </div>
@@ -310,7 +311,7 @@
               Box 4 -->
               
           </div>
-          <h6 class="font-weight-600 mb-3">Overall Progress</h6>
+          <h6 class="font-weight-600 mb-3">{% trans 'Overall Progress'%}</h6>
     
           <div class="ml-3 progress custom-progress mb-1 me-4">
             <div class="progress-bar bg-primary" role="progressbar" style="width: {{completion_percentage}}%"></div>
@@ -320,8 +321,8 @@
         <!--Choose your activity box-->
         {% if current_task %}
         <div class="rounded-xl border-gray shadow-sm p-4 mb-4" style="background-color:#eef2ff;">
-          <h2 class="text-lg fw-semibold text-indigo-900 mb-4">Choose Your Next Activity</h2>
-          <p class="text-sm text-indigo-700 mb-5">Based on your progress, you can choose one of these activities to continue your learning journey.</p>
+          <h2 class="text-lg fw-semibold text-indigo-900 mb-4">{% trans 'Choose Your Next Activity'%}</h2>
+          <p class="text-sm text-indigo-700 mb-5">{% trans 'Based on your progress, you can choose one of these activities to continue your learning journey.'%}</p>
           
           <div class="row g-2">
             <!-- Activity Card 1 -->
@@ -355,7 +356,7 @@
 
         <!-- Visualization of learning path-->
         <div class="rounded-md border-gray shadow p-4 mb-4 py-4">
-          <h2 class="fw-bold mb-4">Learning Path Progress</h2>
+          <h2 class="fw-bold mb-4">{% trans 'Learning Path Progress'%}</h2>
      
           <!-- Learning Path Visualization -->
           <div class="learning-path-wrapper">
@@ -388,7 +389,7 @@
                                                 data-bs-target="#collapse-{{progress.episode_id}}" 
                                                 aria-expanded="false" 
                                                 aria-controls="collapse-{{progress.episode_id}}">
-                                            <i class="fas fa-tasks me-2"></i> Tasks ({{progress.total_tasks}})
+                                            <i class="fas fa-tasks me-2"></i> {% trans 'Tasks'%} ({{progress.total_tasks}})
                                         </button>
                                     </h2>
                                     <div id="collapse-{{progress.episode_id}}" class="custom-accordion-collapse collapse show" 

@@ -1,5 +1,6 @@
+{% load i18n %}
 <div class="modal-header">
-    <h5 class="modal-title">Update Resource</h5>
+    <h5 class="modal-title">{% trans 'Update Resource'%}</h5>
     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
 </div>
 
@@ -10,7 +11,7 @@
 
         <div id="div_id_title" class="form-group">
             <label for="resourceTitle" class=" requiredField">
-                Title<span class="asteriskField">*</span>
+                {% trans 'Title'%}<span class="asteriskField">*</span>
             </label>
             <div>
                 <input type="text" name="{{form.title.name}}" class="form-control textinput" id="resourceTitle"
@@ -42,7 +43,7 @@
         </div>
         <div id="div_id_url" class="form-group">
             <label for="id_url" class="">
-                Url
+                {% trans 'Url'%}
             </label>
             <div>
                 <input type="url" name="{{form.url.name}}" class="form-control urlinput" placeholder="External resource"
@@ -53,6 +54,6 @@
 </div>
 
 <div class="modal-footer">
-    <button type="submit" class="btn btn-success">Save</button>
-    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+    <button type="submit" class="btn btn-success">{% trans 'Save'%}</button>
+    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">{% trans 'Close'%}</button>
 </div>

@@ -147,13 +147,8 @@ class LearningPathStudentView(LoginRequiredMixin, View):
 
         # Get all task interactions for this student in this learning path
         interactions = TaskInteraction.objects.filter(learning_session=learning_session, student=self.request.user)
-
         completed = interactions.filter(status='completed')
-
         total_tasks = learning_path.get_total_tasks()
-
-        print('Total tasks:',total_tasks)
-
         total_time = learning_path.get_total_time()
 
         # Determine current progress and next task
@@ -216,7 +211,7 @@ class StudentDashboardView(LoginRequiredMixin, View):
         # Get all enrollments
         enrollments = Enrollment.objects.filter(student=student)
 
-        sessions = LearningSession.objects.all()
+        #sessions = LearningSession.objects.all()
 
         sessions_extends = []
 
@@ -232,7 +227,8 @@ class StudentDashboardView(LoginRequiredMixin, View):
             context['current_task'] = current_task
             context['current_session'] = current_session
 
-        for session in sessions:
+        for enrollment in enrollments:
+            session = enrollment.learning_session
             session_dict = {'object':session}
 
             interactions = TaskInteraction.objects.filter(learning_session=session, student=self.request.user,status='completed')
@@ -240,7 +236,7 @@ class StudentDashboardView(LoginRequiredMixin, View):
             session_dict['total_time'] = session.learning_path.get_total_time()
             session_dict['total_tasks'] = session.learning_path.get_total_tasks()
             session_dict['completion_percentage'] = (len(interactions) * 100/session_dict['total_tasks'])
-            session_dict['enrolled'] = 1
+            session_dict['enrolled'] = len(Enrollment.objects.filter(learning_session=session))
 
             sessions_extends.append(session_dict)
 
@@ -251,8 +247,6 @@ class StudentDashboardView(LoginRequiredMixin, View):
         context['sessions_extends'] =sessions_extends
         
         return render(request, 'dashboard.html', context)
-
-
 
 
 class TaskView(LoginRequiredMixin, View):

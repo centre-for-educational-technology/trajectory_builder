@@ -46,11 +46,20 @@
               {{request.user.email}}
             </a>
             <div class="dropdown-menu" aria-labelledby="navbarScrollingDropdown">
-              <a class="dropdown-item" href="{% url 'student_dashboard' %}">{% trans 'Student view (for testing only)' %}</a>
+              
+              <a class="dropdown-item" href="{% url 'student_dashboard' %}">
+                {% if request.user.is_staff %}
+                  {% trans 'Student Dashboard View' %}
+                  {% else %}
+                  {% trans 'Dashboard' %}
+                  {% endif %}
+              </a>
               <hr class="dropdown-divider">
+              {% if request.user.is_staff %}
               <a class="dropdown-item" href="{% url 'learning_path_list' %}">{% trans 'Learning Trajectories' %}</a>
               <a class="dropdown-item" href="{% url 'session_list' %}">{% trans 'Learning Sessions' %}</a>
               <hr class="dropdown-divider">
+              {% endif %}
               <a class="dropdown-item" href="{% url 'logout' %}">{% trans 'Logout' %}</a>
             </div>
           </li>

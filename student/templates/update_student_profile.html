@@ -1,6 +1,6 @@
 {% extends 'student_base.html' %}
 {% load crispy_forms_tags %}
-
+{% load i18n %}
 {% block content %}
 <style>
     /* Add vertical space between fields */
@@ -70,8 +70,8 @@
     }
 </style>
 <div class="p-3 row">
-    <h3> Update profile </h3>
-    <p class="text-secondary small">Update your profile information</p>
+    <h3> {% trans 'Update profile'%} </h3>
+    <p class="text-secondary small">{% trans 'Update your profile information'%}</p>
     <div class="content-section rounded-xl shadow p-4 col col-xl-6 col-md-6 col-sm-12">
         <div class="media d-flex align-items-center">
             <div class="position-relative me-3">
@@ -95,7 +95,7 @@
                 {{ form.as_p }} <!-- Changed from sp_form to form for class-based view -->
             </fieldset>
             <div class="form-group">
-                <button class="btn btn-outline-info" type="submit">Update</button>
+                <button class="btn btn-outline-info" type="submit">{% trans 'Update'%}</button>
             </div>
         </form>
     </div>

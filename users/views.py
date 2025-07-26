@@ -11,7 +11,7 @@ from django.contrib.messages.views import SuccessMessageMixin
 
 from django.conf import settings
 from django.utils.translation import gettext as _
-
+from django.urls import reverse
 
 
 class RegisterView(View):
@@ -73,6 +73,7 @@ def logout(request):
     user_logout(request)
     return redirect('login')
 
+
 def change_language(request, lang_code):
     """Change user language for translation.
        url: '/change_lang'
@@ -100,12 +101,19 @@ class CustomLoginView(LoginView):
         """Redirect users based on their is_staff status. This status differentiate teachers from students.
 
         """
+
+        # First check for 'next' parameter in request
+        next_url = self.request.GET.get('next')
+        if next_url:
+            return next_url
+        
         user = self.request.user
         if user.is_staff:
-            return '/trajectory/list'
- 
-        
+            return reverse('learning_path_list')
+        else:
+            return reverse('student_dashboard')
 
+ 
     def form_valid(self, form):
         """Function extending the functionality of validity check
            url:'/login'

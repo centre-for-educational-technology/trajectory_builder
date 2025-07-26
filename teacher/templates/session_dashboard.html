@@ -1,5 +1,5 @@
 {% extends 'base_form.html' %}
-
+{% load i18n %}
 {% block content %}
 
 <style>
@@ -140,11 +140,12 @@
         }
         
         .episode-tasks {
-            background-color: #76b7b2; /* Blue for episode 1 */
+            background-color: grey; /* Blue for episode 1 */
         }
         
         .completed {
-            opacity: 1;
+            background-color: #3cb371;
+            opacity: .8;
         }
         
         .not-completed {
@@ -152,7 +153,8 @@
         }
 
         .in_progress {
-            opacity: 0.3;
+            background-color: #ffbf00;
+            opacity: 0.8;
         }
         
         .episode-container {
@@ -203,17 +205,25 @@
     border: 1px solid #ddd;
 }
 
-/* Status colors - customize as needed */
-.student-task-box.completed {
-    background-color: #28a745; /* Green for completed */
-}
-.student-task-box.incomplete {
-    background-color: #dc3545; /* Red for incomplete */
-}
-.student-task-box.in-progress {
-    background-color: #ffc107; /* Yellow for in progress */
+
+
+.text-completed{
+    color: #3cb371;
+    font-weight: bolder;
+    opacity: .9;
 }
 
+.text-in-progress{
+    color: #ffc107;
+    font-weight: bolder;
+    opacity: .9;
+}
+
+.text-not-interacted{
+    color: grey;
+    font-weight: bolder;
+    opacity: .9;
+}
 
 .bg-purple{
   background-color: rgba(191, 170, 241, 0.1); /* 10% opacity */
@@ -268,7 +278,7 @@ border-radius: .75rem;}
             <p class="text-secondary">Exploring Ecosystems Learning Path</p> 
             <br/>
             <div>
-                Registration link: 
+                {% trans 'Registration link'%}: 
                     
                         <input type="text" id="registration-link" 
                             value="{{ request.scheme }}://{{ request.get_host }}{% url 'session_register' registration.code %}" 
@@ -292,7 +302,7 @@ border-radius: .75rem;}
                 <div class="mb-4">
                     
                     <div class="mt-2">
-                       Registration status: <p class="small">{{ form.registration }}
+                       {% trans 'Registration status'%}: <p class="small">{{ form.registration }}
                     </div>
                 </div>
 
@@ -312,7 +322,7 @@ border-radius: .75rem;}
             </div>
             <div class="metric-content">
                 <div class="metric-value">{{enrollments}}</div>
-                <div class="metric-label">Enrolled Students</div>
+                <div class="metric-label">{% trans 'Enrolled Students'%}</div>
                 
             </div>
         </div>
@@ -327,7 +337,7 @@ border-radius: .75rem;}
         </div>
         <div class="metric-content">
             <div class="metric-value">{{avg_task_completed}}%</div>
-            <div class="metric-label">Average Task Completion</div>
+            <div class="metric-label">{% trans 'Average Task Completion'%}</div>
            
         </div>
     </div>
@@ -342,7 +352,7 @@ border-radius: .75rem;}
         </div>
         <div class="metric-content">
             <div class="metric-value">{{avg_episode_completed}}<small>/{{total_episodes}}</small></div>
-            <div class="metric-label">Average Episodes Completed</div>
+            <div class="metric-label">{% trans 'Average Episodes Completed'%}</div>
             
         </div>
     </div>
@@ -352,15 +362,18 @@ border-radius: .75rem;}
 
         <!-- Student Progress Grid -->
         <div class="bg-white rounded-md  shadow-sm border p-3">        
-            <h4>Student Task Completion</h4>
-            <p class="mb-0">Each column represents a task, colored by episode. Green boxes indicate completion.</p>
+            <h4>{% trans 'Student Task Completion'%}</h4>
+            <p class="mb-0">{% trans 'Each column represents a task, colored by completion status of that task.'%}</p>
+            <div class="d-flex">
+                <span class='text-completed p-2'>{% trans 'Completed'%}</span><span class='text-in-progress  p-2'>{% trans 'In-progress'%}</span><span class='text-not-interacted  p-2'>{% trans 'Not-started'%}</span>
+            </div>
             
             <div class="p-2 rounded-md shadow-sm mt-3">
                 <div class="table-container">
                     <table class="table table-sm mt-3  mb-0">
                         <thead>
                             <tr>
-                                <th class="student-name-col">Student</th>
+                                <th class="student-name-col">{% trans 'Student'%}</th>
                                 {% for col in header %}
                                     <th class="task-header">{{col.label}}</th>
                                 {% endfor %}
@@ -368,9 +381,9 @@ border-radius: .75rem;}
                             </tr>
                         </thead>
                         <tbody>
-                            <!-- Student 1 -->
-                            <tr>
+                            <!-- Student -->
                                 {% for student_record in analytics %}
+                                <tr>
                                 <td class="student-name-col">{{student_record.name}}</td>
                                 <!-- Episode 1 Tasks -->
                                     {% for episode in student_record.episodes %}
@@ -378,10 +391,8 @@ border-radius: .75rem;}
                                             <td><div class="student-task-box episode-tasks {{task.status}}"></div></td>
                                         {% endfor %}
                                     {% endfor %}
+                                </tr>
                                 {% endfor %}
-                            </tr>
-                            
-                            
                         </tbody>
                     </table>
                 </div>

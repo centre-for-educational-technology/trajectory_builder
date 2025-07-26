@@ -1,7 +1,7 @@
 
 {% extends 'base_form.html' %}
 {% load crispy_forms_tags %}
-
+{% load i18n %}
 {% block content %}
 <style>
     /* Add vertical space between fields */
@@ -72,7 +72,7 @@
     <div class="container">
         <!-- Top white bar -->
         <div class="py-3 px-0">
-            <h5 class="m-0">Configure Instructional Trajectory</h5>
+            <h5 class="m-0">{% trans 'Configure Instructional Trajectory'%}</h5>
 
         </div>
     </div>
@@ -95,10 +95,10 @@
                         {{object.description}}
                     </div>
                     <div>
-                        <p class="activity-description p-0 m-0  text-muted small" > Subject: {{object.subject}} | School: {{object.school_level}} </p>
+                        <p class="activity-description p-0 m-0  text-muted small" > {% trans 'Subject'%}: {{object.subject}} | {% trans 'School'%}: {{object.school_level}} </p>
                     </div>
                     <div>
-                        <p class="activity-description p-0 m-0  text-muted small"> Learning outcomes: </p>
+                        <p class="activity-description p-0 m-0  text-muted small"> {% trans 'Learning outcomes'%}: </p>
                         
                         <ul class="px-3 activity-description p-0 m-0  text-muted" style="font-size: .8rem;">
                             {% for outcome in outcomes %}
@@ -108,65 +108,65 @@
                     </div>
                 </div>
                 <div class="col col-lg-8 col-md-6 col-sm-12 bg-white p-5 shadow-sm rounded-box">
-                    <h5 class="font-weight-bold"> Trajectory episodes</h5>
-                    <p class="text-muted small">Build the structure of your instructional trajectory by adding episodes and learning activities.</p>
+                    <h5 class="font-weight-bold">{% trans ' Trajectory episodes'%}</h5>
+                    <p class="text-muted small">{% trans 'Build the structure of your instructional trajectory by adding episodes and learning activities.'%}</p>
                     <div class="episodes-container  p-0 mb-4 mt-4 border-bottom">       
                         {% for episode in object.episodes.all %}
                             <div class="episode bg-white rounded-box shadow-sm border px-4 py-4 mb-5">
                                 <div class="episode-header  d-flex justify-content-between align-items-start border-bottom">
                                         <div>
-                                            <h5 class="episode-title">Episode : {{episode.title}}</h5>
+                                            <h5 class="episode-title">{% trans 'Episode'%} : {{episode.title}}</h5>
                                             <p class="episode-description text-muted small">{{episode.description}}</p>
                                         </div>
                                         <div>
-                                            <p data-episode-id="{{episode.id}}"  data-bs-toggle="modal" data-bs-target="#updateEpisodeModal" class="btn update-episode add-link mx-2 text-primary" style="color:blue;font-weight: 500; font-size: .9rem;">Edit</p> 
-                                            <p data-episode-id="{{episode.id}}" class="btn delete-episode add-link text-danger" style="color:red;font-weight: 500; font-size: .9rem;">Remove Episode</p>
+                                            <p data-episode-id="{{episode.id}}"  data-bs-toggle="modal" data-bs-target="#updateEpisodeModal" class="btn update-episode add-link mx-2 text-primary" style="color:blue;font-weight: 500; font-size: .9rem;">{% trans 'Edit'%}</p> 
+                                            <p data-episode-id="{{episode.id}}" class="btn delete-episode add-link text-danger" style="color:red;font-weight: 500; font-size: .9rem;">{% trans 'Remove Episode'%}</p>
                                         </div>
                                 </div>
                                 <div class="episode-body mt-3">
                                     <template x-for="ep in ep_ids[id]"></template>
-                                    <h6 class="mb-2"> Learning Activities </h6>
+                                    <h6 class="mb-2"> {% trans 'Learning Activities'%} </h6>
                                     <div class="tasks-container mb-3 ">
                                         {% for task in episode.learning_tasks.all %}
                                         <div class="task bg-light p-3 rounded-box-sm shadow-sm p-2 mb-3 ">
                                             <div class="task-header d-flex justify-content-between align-items-start">
                                                 <div>
-                                                    <p class="activity-title p-0 m-0">Activity: {{task.title}}</p>
-                                                    <p class="activity-description p-0 m-0  text-muted" style="font-size: .8rem;">Type: {{task.task_type}} | Location: {{task.location}} | Time: {{task.approximate_time}} | Difficulty: {{task.difficulty_level}}</p>
+                                                    <p class="activity-title p-0 m-0">{% trans 'Activity'%}: {{task.title}}</p>
+                                                    <p class="activity-description p-0 m-0  text-muted" style="font-size: .8rem;">{% trans 'Type'%}: {{task.task_type}} | {% trans 'Location'%}: {{task.location}} | {% trans 'Time'%}: {{task.approximate_time}} | {% trans 'Difficulty'%}: {{task.difficulty_level}}</p>
                                                 </div>
                                                 <div>
-                                                    <p data-task-id="{{task.id}}" data-bs-toggle="modal" data-bs-target="#updateTaskModal" class="btn update-task add-link mx-2 text-primary" style="color:blue;font-weight: 500; font-size: .9rem;">Edit</p> 
-                                                    <p class="btn delete-task text-danger"  data-task-id="{{task.id}}" style="font-weight: 500; font-size: .9rem;">Remove Activity</p>
+                                                    <p data-task-id="{{task.id}}" data-bs-toggle="modal" data-bs-target="#updateTaskModal" class="btn update-task add-link mx-2 text-primary" style="color:blue;font-weight: 500; font-size: .9rem;">{% trans 'Edit'%}</p> 
+                                                    <p class="btn delete-task text-danger"  data-task-id="{{task.id}}" style="font-weight: 500; font-size: .9rem;">{% trans 'Remove Activity'%}</p>
                                                 </div>
                                             </div>
                                             <div class="task-body mb-0" style="font-size:.9rem;">
-                                                <p class="m-0 p-0 small" style="font-weight: 500;">Resources:</p>
+                                                <p class="m-0 p-0 small" style="font-weight: 500;">{% trans 'Resources'%}:</p>
                                                 <div class="resource-container small m-0">
                                                     <ul>
                                                         {% for resource in task.resources.all %}
                                                         <li class="d-flex justify-content-between align-items-center mb-2">
                                                             <span class="fw-light">{{ resource.title }}</span>
                                                             <span>
-                                                              <a href="" data-resource-id="{{resource.id}}"  data-bs-toggle="modal" data-bs-target="#updateResourceModal" class="text-primary me-3" style="font-size: inherit; text-decoration: none;">Edit</a>
-                                                              <a href="" data-resource-id="{{resource.id}}"  class="delete-resource text-danger" style="font-size: inherit; text-decoration: none;">Remove Resource</a>
+                                                              <a href="" data-resource-id="{{resource.id}}"  data-bs-toggle="modal" data-bs-target="#updateResourceModal" class="text-primary me-3" style="font-size: inherit; text-decoration: none;">{% trans 'Edit'%}</a>
+                                                              <a href="" data-resource-id="{{resource.id}}"  class="delete-resource text-danger" style="font-size: inherit; text-decoration: none;">{% trans 'Remove Resource'%}</a>
                                                             </span>
                                                           </li>
                                                         {% endfor %}
                                                     </ul>
                                                 </div>
                                             </div>
-                                            <div class="mt-0"><a href=""  data-tid="{{task.id}}" data-bs-toggle="modal" data-bs-target="#addResourceModal" class="text-bold-light text-blue text-decoration-none add-resource-link mt-0">+ Add Resource</a></div>
+                                            <div class="mt-0"><a href=""  data-tid="{{task.id}}" data-bs-toggle="modal" data-bs-target="#addResourceModal" class="text-bold-light text-blue text-decoration-none add-resource-link mt-0">+ {% trans 'Add Resource'%}</a></div>
                                         </div>
                                         {% endfor %}
                                     </div>
    
-                                    <button class="btn text-blue" style="background-color: aliceblue; font-size: .9rem; font-weight: 600;" data-eid="{{episode.id}}" data-bs-toggle="modal" data-bs-target="#addTaskModal">+ Add Learning Activity</button>
+                                    <button class="btn text-blue" style="background-color: aliceblue; font-size: .9rem; font-weight: 600;" data-eid="{{episode.id}}" data-bs-toggle="modal" data-bs-target="#addTaskModal">+ {% trans 'Add Learning Activity'%}</button>
                                 </div>
                             </div>
                             {% endfor %}
      
                     </div> 
-                    <button class="btn bg-primary text-white" data-bs-toggle="modal" data-bs-target="#addEpisodeModal"><i class="bi bi-plus-circle"></i> Add New Episode</button>
+                    <button class="btn bg-primary text-white" data-bs-toggle="modal" data-bs-target="#addEpisodeModal"><i class="bi bi-plus-circle"></i> {% trans 'Add New Episode'%}</button>
                 </div>
             </div>   
         </div>
@@ -178,7 +178,7 @@
             <div class="modal-content">
                 <form id="episodeForm">
                 <div class="modal-header">
-                    <h5 class="modal-title" id="addEpisodeModalLabel">New Episode</h5>
+                    <h5 class="modal-title" id="addEpisodeModalLabel">{% trans 'New Episode'%}</h5>
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
         
@@ -191,8 +191,8 @@
                 </div>
         
                 <div class="modal-footer">
-                    <button type="submit" class="btn btn-success">Save</button>
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                    <button type="submit" class="btn btn-success">{% trans 'Save'%}</button>
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">{% trans 'Close'%}</button>
                 </div>
                 </form>
             </div>
@@ -205,7 +205,7 @@
             <div class="modal-content">
                 <form id="taskForm">
                 <div class="modal-header">
-                    <h5 class="modal-title" id="addTaskModalLabel">New Learning Activity</h5>
+                    <h5 class="modal-title" id="addTaskModalLabel">{% trans 'New Learning Activity'%}</h5>
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
         
@@ -218,8 +218,8 @@
                 </div>
         
                 <div class="modal-footer">
-                    <button type="submit" class="btn btn-success">Save</button>
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                    <button type="submit" class="btn btn-success">{% trans 'Save'%}</button>
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">{% trans 'Close'%}</button>
                 </div>
                 </form>
             </div>
@@ -232,7 +232,7 @@
             <div class="modal-content">
                 <form id="resourceForm">
                     <div class="modal-header">
-                        <h5 class="modal-title" id="addResourceModalLabel">New Resource</h5>
+                        <h5 class="modal-title" id="addResourceModalLabel">{% trans 'New Resource'%}</h5>
                         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                     </div>
             
@@ -243,7 +243,7 @@
 
                             <div id="div_id_title" class="form-group"> 
                                 <label for="resourceTitle" class=" requiredField">  
-                                    Title<span class="asteriskField">*</span> 
+                                    {% trans 'Title'%}<span class="asteriskField">*</span> 
                                 </label> 
                                 <div> 
                                     <input type="text" name="title" class="form-control textinput" id="resourceTitle" placeholder="Enter title here" maxlength="200" required=""> 
@@ -273,7 +273,7 @@
                             </div> 
                             <div id="div_id_url" class="form-group"> 
                                 <label for="id_url" class="">
-                                            Url
+                                            {% trans 'Url'%}
                                 </label> 
                                 <div> 
                                     <input type="url" name="url" class="form-control urlinput" placeholder="External resource" maxlength="500" id="id_url"> 
@@ -283,8 +283,8 @@
                     </div>
             
                     <div class="modal-footer">
-                        <button type="submit" class="btn btn-success">Save</button>
-                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                        <button type="submit" class="btn btn-success">{% trans 'Save'%}</button>
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">{% trans 'Close'%}</button>
                     </div>
                 </form>
             </div>

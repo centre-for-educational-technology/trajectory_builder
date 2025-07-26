@@ -1,7 +1,7 @@
 {% load crispy_forms_tags %}
-
+{% load i18n %}
     <div class="modal-header">
-        <h5 class="modal-title">Update Task</h5>
+        <h5 class="modal-title">{% trans 'Update Task'%}</h5>
         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
     </div>
 
@@ -14,6 +14,6 @@
     </div>
 
     <div class="modal-footer">
-        <button type="submit" class="btn btn-success">Save</button>
-        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+        <button type="submit" class="btn btn-success">{% trans 'Save'%}</button>
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">{% trans 'Close'%}</button>
     </div>

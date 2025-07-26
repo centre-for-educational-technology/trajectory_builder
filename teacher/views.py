@@ -28,6 +28,23 @@ import uuid
 
 from student.models import TaskInteraction
 
+from django.contrib.auth.mixins import AccessMixin
+from django.shortcuts import redirect
+from django.contrib import messages
+
+class StaffUserRequiredMixin(AccessMixin):
+    """Verify that the current user is authenticated and is_staff."""
+    
+    def dispatch(self, request, *args, **kwargs):
+        if not request.user.is_authenticated:
+            return self.handle_no_permission()
+        
+        if not request.user.is_staff:
+            messages.add_message(request,messages.WARNING, f"You don't have permission to access {request.path}.")
+            return redirect('student_dashboard')  # Or your preferred redirect
+            
+        return super().dispatch(request, *args, **kwargs)
+
 @receiver(post_save, sender=LearningSession)
 def create_session_registration(sender, instance, created, **kwargs):
     """
@@ -227,7 +244,7 @@ class LearningSessionDashboardView(LoginRequiredMixin, View):
             return redirect('session_dashboard',pk=obj.learning_session.id)
 
 
-class LearningSessionListView(LoginRequiredMixin,ListView):
+class LearningSessionListView(StaffUserRequiredMixin,LoginRequiredMixin,ListView):
     model = LearningSession
     template_name = 'session_list.html'
     context_object_name = 'learning_sessions'
@@ -246,8 +263,14 @@ class LearningSessionRegisterView(LoginRequiredMixin,View):
             registration = SessionRegistration.objects.filter(code=code).first()
 
             if registration and registration.is_active:
-                Enrollment.objects.create(learning_session=registration.learning_session,student=request.user)
-                return render(request,self.template_name,{'registration_open':True, 'invalid':False})
+                print(registration.learning_session,':',request.user)
+                
+                new_obj, created = Enrollment.objects.get_or_create(learning_session=registration.learning_session,student=request.user)
+                if created:
+                    return render(request,self.template_name,{'registration_open':True, 'invalid':False})
+                else:
+                    messages.add_message(request,messages.INFO,f'You are already enrolled in {registration.learning_session}')
+                    return redirect('student_dashboard')
             else:
                 return render(request,self.template_name,{'registration_open':False, 'invalid':False})
         except ValidationError:

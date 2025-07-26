@@ -1,5 +1,5 @@
 {% extends 'base_form.html' %}
-
+{% load i18n %}
 {% block content %}
 <style>
 .trajectory{
@@ -12,15 +12,15 @@
     <div class="container">
         <!-- Top white bar -->
         <div class="py-3 px-0">
-            <h5 class="m-0">Trajectories</h5>
+            <h5 class="m-0">{% trans 'Trajectories'%}</h5>
         </div>
     </div>
     <div class="bg-light border-top shadow-sm min-vh-100 d-flex flex-column">
         <!-- Light grey background section -->
         <div class="container  py-4">
             <div class="d-flex justify-content-between align-items-center mb-3">
-                <h6 class="mb-0">Your learning trajectory</h6>
-                <a href="{% url 'learning_path_create' %}" class="btn btn-success py-1 btn-small">Add new</a>
+                <h6 class="mb-0">{% trans 'Your learning trajectory</h6>
+                <a href="{% url 'learning_path_create' %}" class="btn btn-success py-1 btn-small">{% trans 'Add new'%}</a>
             </div>
             <hr>
 
@@ -34,12 +34,12 @@
                         <small class="text-muted">{{ path.description }}</small> 
                     </div>
                     <div>
-                        <a href="{% url 'learning_path_update' path.pk %}" class="btn btn-sm btn-outline-primary">Edit</a>
+                        <a href="{% url 'learning_path_update' path.pk %}" class="btn btn-sm btn-outline-primary">{% trans 'Edit'%}</a>
                     </div>
                 </li>
                 </a>
                 {% empty %}
-                <li class="list-group-item">No learning paths found.</li>
+                <li class="list-group-item">{% trans 'No learning paths found.'%}</li>
                 {% endfor %}
             </ul>
         </div>

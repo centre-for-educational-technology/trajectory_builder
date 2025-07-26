@@ -1,22 +1,23 @@
 {% extends 'student_base.html' %}
+{% load i18n %}
 {% load crispy_forms_tags %}
 {% load static%}
 {% block content %}
 <!-- Main Content -->
 
-<p class="dashboard-title mb-1 mt-2"> Your Learning Dashboard </p>
-<p class="text-secondary small">Track your progress and continue your learning journey.</p>
+<p class="dashboard-title mb-1 mt-2"> {% trans 'Your Learning Dashboard' %} </p>
+<p class="text-secondary small">{% trans 'Track your progress and continue your learning journey.' %} </p>
 
 {% if current_task %}
 <!-- Gradient Box -->
 <div class="gradient-box mb-4 mr-4">
-  <p class="title-two text-bg mb-0">Continue Learning</p>
-  <p class="mb-2 small font-weight-lighter">Pick up where you left off in your current trajectory.</p>
+  <p class="title-two text-bg mb-0">{% trans 'Continue Learning' %} </p>
+  <p class="mb-2 small font-weight-lighter">{% trans 'Pick up where you left off in your current trajectory.' %} </p>
 
   <div class="inner-gradient-box p-3">
     <div>
       <h6 class="mb-1">{{current_task.title}}</h6>
-      <small>Continue where you left off</small>
+      <small>{% trans 'Continue where you left off' %} </small>
     </div>
     <div class="arrow-circle">
       <a href="{% url 'learning_path_task' current_session.id current_task.id %}"><i class="fas fa-arrow-right"></i></a>
@@ -28,38 +29,45 @@
 </div>
 {% endif %}
 
-<p class="title-two">Your Sessions</p>
-<div class="d-flex flex-row flex-wrap gap-3">
-  <!-- Card 1 -->
-  
+<p class="title-two">{% trans 'Your Sessions' %} </p>
+
+
+  {% if sessions_extends %}
+  <div class="d-flex flex-row flex-wrap gap-3">
     {% for session in sessions_extends %}
-    
-    <div class="learning-path-card h-100 d-flex flex-column justify-content-between shadow-sm p-3" style="width: 100%; max-width: 350px; min-width: 220px;">
-      <div class="mb-3">
-        <a href="{% url 'learning_path' session.object.id %}">
-          <p class="title-three mb-1">{{ session.object.label | upper}}</p>
-        </a>
-        <p class="text-secondary small">{{session.object.description}}</p>
-      </div>
-      <div>
-        <div class="d-flex justify-content-between text-muted mb-3 small">
-          <span><i class="fas fa-book me-1"></i>{{ session.total_tasks}} tasks</span>
-          <span><i class="fas fa-clock me-1"></i>{{ session.total_time}}</span>
-          <span><i class="fas fa-users me-1"></i>{{ session.enrolled}} enrolled</span>
+      <div class="learning-path-card h-100 d-flex flex-column justify-content-between shadow-sm p-3" style="width: 100%; max-width: 350px; min-width: 220px;">
+        <div class="mb-3">
+          <a href="{% url 'learning_path' session.object.id %}">
+            <p class="title-three mb-1">{{ session.object.label | upper}}</p>
+          </a>
+          <p class="text-secondary small">{{session.object.description}}</p>
         </div>
-        <div class="progress custom-progress mb-1">
-          <div class="progress-bar bg-success" role="progressbar" style="width: {{session.completion_percentage}}%">
+        <div>
+          <div class="d-flex justify-content-between text-muted mb-3 small">
+            <span><i class="fas fa-book me-1"></i>{{ session.total_tasks}} tasks</span>
+            <span><i class="fas fa-clock me-1"></i>{{ session.total_time}}</span>
+            <span><i class="fas fa-users me-1"></i>{{ session.enrolled}} enrolled</span>
           </div>
+          <div class="progress custom-progress mb-1">
+            <div class="progress-bar bg-success" role="progressbar" style="width: {{session.completion_percentage}}%">
+            </div>
+          </div>
+          <div class="small mt-1 text-muted">{{session.completion_percentage | stringformat:"d"}}% completed</div>
         </div>
-        <div class="small mt-1 text-muted">{{session.completion_percentage | stringformat:"d"}}% completed</div>
       </div>
-    </div>
-
     {% endfor %}
-  </div>
+    </div>
+   {% else %}
 
-  <!-- Duplicate the card structure above for Card 2, Card 3, etc. -->
-</div>
+    <div class="rounded-md shadow-sm p-4 text-center border bg-light mx-auto my-4" >
+        <i class="bi bi-info-circle-fill text-secondary fs-1 mb-3"></i>
+        <p class="text-muted mb-0 fs-5 fw-medium">
+            {% trans 'You do not have any enrolled learning sessions.' %} 
+        </p>
+      </div>
+
+   {% endif %}
+  </div>
 
 </div>
 {% endblock %}

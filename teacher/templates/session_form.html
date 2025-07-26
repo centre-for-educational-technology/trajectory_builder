@@ -1,7 +1,7 @@
 
 {% extends 'base_form.html' %}
 {% load crispy_forms_tags %}
-
+{% load i18n %}
 {% block content %}
 <style>
     /* Add vertical space between fields */
@@ -65,7 +65,7 @@
     <div class="container">
         <!-- Top white bar -->
         <div class="py-3 px-0">
-            <h5 class="m-0">Create a new session</h5>
+            <h5 class="m-0">{% trans 'Create a new session'%}</h5>
         </div>
     </div>
     <div class="bg-light border-top shadow-sm min-vh-100 d-flex flex-column ">
@@ -80,7 +80,7 @@
                         </svg>
                        </div> 
                        <h6 class="text-base font-bold">
-                            Learning Session
+                            {% trans 'Learning Session'%}
                        </h6>
                     </div>
 
@@ -90,8 +90,8 @@
                         {% csrf_token %}
                         {{ form | crispy }}
                         <div style="text-align: right;">
-                            <a href="{% url 'learning_path_list' %}" class="text-dark font-weight-bold mx-2" style="text-decoration: none";>Cancel</a>
-                            <button type="submit" class="btn btn-primary py-1 px-3">Save</button>
+                            <a href="{% url 'learning_path_list' %}" class="text-dark font-weight-bold mx-2" style="text-decoration: none";>{% trans 'Cancel'%}</a>
+                            <button type="submit" class="btn btn-primary py-1 px-3">{% trans 'Save'%}</button>
                         </div>
                     </form>
                 </div>

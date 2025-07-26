@@ -1,4 +1,5 @@
 {% load static%}
+{% load i18n %}
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -173,10 +174,10 @@
         </div>
         <nav class="nav flex-column w-100 px-1">
           <a class="nav-link d-flex align-items-center" href="{% url 'student_dashboard'%}">
-            <i class="fas fa-home me-2"></i> Dashboard
+            <i class="fas fa-home me-2"></i> {% trans 'Dashboard' %}
           </a>
           <a class="nav-link d-flex align-items-center" href="#">
-            <i class="fas fa-route me-2"></i> My Trajectories
+            <i class="fas fa-route me-2"></i> {% trans 'My Trajectories' %}
           </a>
         </nav>
       </div>
@@ -208,7 +209,7 @@
                                     role="tab" 
                                     aria-controls="resource-{{ forloop.counter }}"
                                     aria-selected="{% if forloop.first %}true{% else %}false{% endif %}">
-                                Resource {{ forloop.counter }}
+                                 {% trans 'Resource'%} {{ forloop.counter }}
                             </button>
                         </li>
                 {% endfor %}
@@ -269,9 +270,9 @@
           <div class="card-footer bg-light">
               <div class="d-flex justify-content-between align-items-center">
                   <div class="text-muted small">
-                      <span>Type: {{task.task_type}}</span> - 
-                      <span>Location: {{task.location}}</span> - 
-                      <span>Approximate Time: {{task.approximate_time}}</span>
+                      <span> {% trans 'Type'%}: {{task.task_type}}</span> - 
+                      <span> {% trans 'Location'%}: {{task.location}}</span> - 
+                      <span> {% trans 'Approximate Time'%}: {{task.approximate_time}}</span>
                   </div>
                   <div>
                       <form method="post" id="mark_as_complete_form">
@@ -281,10 +282,10 @@
                         <input type="hidden" name="session_id" value="{{learning_session.id}}"/>
   
                       </form>
-                      {% if pre_task %} <a href="{% url 'learning_path_task' learning_session.id pre_task.id%}" class="btn btn-sm btn-primary"> <i class="fas fa-arrow-left"></i> Previous</a>{% endif %}
-                      <a class="btn btn-sm btn-success" onclick="document.getElementById('mark_as_complete_form').submit()" >Mark as completed</a>
-                      <a href="{% url 'learning_path' learning_session.id%}"class="btn btn-sm btn-secondary">Return to Trajectory</a>
-                      {% if next_task %}<a href="{% url 'learning_path_task' learning_session.id next_task.id%}" class="btn btn-sm btn-primary">Next <i class="fas fa-arrow-right"></i></a> {% endif %}
+                      {% if pre_task %} <a href="{% url 'learning_path_task' learning_session.id pre_task.id%}" class="btn btn-sm btn-primary"> <i class="fas fa-arrow-left"></i>  {% trans 'Previous'%}</a>{% endif %}
+                      <a class="btn btn-sm btn-success" onclick="document.getElementById('mark_as_complete_form').submit()" > {% trans 'Mark as completed'%}</a>
+                      <a href="{% url 'learning_path' learning_session.id%}"class="btn btn-sm btn-secondary"> {% trans 'Return to Trajectory'%}</a>
+                      {% if next_task %}<a href="{% url 'learning_path_task' learning_session.id next_task.id%}" class="btn btn-sm btn-primary"> {% trans 'Next'%} <i class="fas fa-arrow-right"></i></a> {% endif %}
                   </div>
               </div>
           </div>
